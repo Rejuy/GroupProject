@@ -10,8 +10,13 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
         System.out.println('e');
         System.out.println('c');
         System.out.println("test");
+
+        // Try github
+        System.out.println("testtesttest");
+
     }
 }
