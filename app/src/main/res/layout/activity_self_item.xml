@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/activity_main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#eeeeee"
+    tools:context="com.example.groupproject.SearchResultActivity"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:background="@color/white">
+
+        <TextView
+            android:id="@+id/self_item_title"
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:orientation="horizontal"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_marginTop="10dp"
+            android:gravity="center_vertical"
+            android:textColorHint="@color/fancy_blue"
+            android:layout_weight="2"
+            android:text="xxx的个人主页"
+            android:textSize="25sp"
+            android:textStyle="bold">
+        </TextView>
+
+        <ImageView
+            android:id="@+id/homepage_button"
+            android:src="@drawable/ic_homepage"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginRight="10dp"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        android:orientation="horizontal"
+        android:background="@color/white"
+        android:padding="10dp"
+        android:layout_marginTop="5dp">
+        <ImageView
+            android:id="@+id/user_image"
+            android:src="@drawable/ic_user_image"
+            android:layout_width="60dp"
+
+            android:layout_height="match_parent" />
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1">
+                <TextView
+                    android:id="@+id/follow_count"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:text="关注：290"
+                    android:gravity="center"
+                    android:layout_marginLeft="10dp">
+
+                </TextView>
+
+                <TextView
+                    android:id="@+id/followed_count"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:text="被关注：1443"
+                    android:gravity="center"
+                    android:layout_marginLeft="10dp">
+
+                </TextView>
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="用户创建于xxxx-xx-xx"
+                android:layout_marginLeft="10dp"
+                android:layout_weight="1"></TextView>
+
+            <TextView
+                android:id="@+id/user_introduction"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/white"
+                android:layout_marginLeft="10dp"
+                android:text="asdf...   >>>"
+                android:layout_weight="1"
+                >
+
+            </TextView>
+
+        </LinearLayout>
+
+
+    </LinearLayout>
+
+
+
+    <include layout="@layout/item_list" />
+
+
+</LinearLayout>

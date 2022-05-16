@@ -1,5 +1,30 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="DesignSurface">
+    <option name="filePathToZoomLevelMap">
+      <map>
+        <entry key="..\:/AndroidCode/GroupProject/app/src/main/res/drawable/btn_bg_selector.xml" value="0.3764102564102564" />
+        <entry key="..\:/AndroidCode/GroupProject/app/src/main/res/drawable/edit_text_bg.xml" value="0.3764102564102564" />
+        <entry key="..\:/AndroidCode/GroupProject/app/src/main/res/drawable/item_bg.xml" value="0.38229166666666664" />
+        <entry key="..\:/AndroidCode/GroupProject/app/src/main/res/drawable/line.xml" value="0.26979166666666665" />
+        <entry key="..\:/AndroidCode/GroupProject/app/src/main/res/layout/activity_account.xml" value="0.36614583333333334" />
+        <entry key="..\:/AndroidCode/GroupProject/app/src/main/res/layout/activity_index.xml" value="0.1848101265822785" />
+        <entry key="..\:/AndroidCode/GroupProject/app/src/main/res/layout/activity_introduction.xml" value="0.25" />
+        <entry key="..\:/AndroidCode/GroupProject/app/src/main/res/layout/activity_login.xml" value="0.2046875" />
+        <entry key="..\:/AndroidCode/GroupProject/app/src/main/res/layout/activity_main.xml" value="0.3432971014492754" />
+        <entry key="..\:/AndroidCode/GroupProject/app/src/main/res/layout/activity_register.xml" value="0.36614583333333334" />
+        <entry key="..\:/AndroidCode/GroupProject/app/src/main/res/layout/activity_search_result.xml" value="0.25" />
+        <entry key="..\:/AndroidCode/GroupProject/app/src/main/res/layout/activity_search_view.xml" value="0.2046875" />
+        <entry key="..\:/AndroidCode/GroupProject/app/src/main/res/layout/activity_self_item.xml" value="0.5" />
+        <entry key="..\:/AndroidCode/GroupProject/app/src/main/res/layout/fragment_tab_item.xml" value="0.33" />
+        <entry key="..\:/AndroidCode/GroupProject/app/src/main/res/layout/fragment_tab_self_center.xml" value="0.36614583333333334" />
+        <entry key="..\:/AndroidCode/GroupProject/app/src/main/res/layout/item_list.xml" value="0.36614583333333334" />
+        <entry key="..\:/AndroidCode/GroupProject/app/src/main/res/layout/layout_first.xml" value="0.2046875" />
+        <entry key="..\:/AndroidCode/GroupProject/app/src/main/res/layout/layout_third.xml" value="0.2046875" />
+        <entry key="..\:/AndroidCode/GroupProject/app/src/main/res/layout/postlist_item.xml" value="0.4" />
+      </map>
+    </option>
+  </component>
   <component name="ProjectRootManager" version="2" languageLevel="JDK_11" default="true" project-jdk-name="Android Studio default JDK" project-jdk-type="JavaSDK">
     <output url="file://$PROJECT_DIR$/build/classes" />
   </component>

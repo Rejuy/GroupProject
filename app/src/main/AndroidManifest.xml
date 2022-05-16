@@ -10,7 +10,25 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.GroupProject">
         <activity
-            android:name=".MainActivity"
+            android:name=".AccountActivity"
+            android:exported="true" />
+        <activity
+            android:name=".IntroductionActivity"
+            android:exported="true" />
+        <activity
+            android:name=".SelfItemActivity"
+            android:exported="true" />
+        <activity
+            android:name=".SearchResultActivity"
+            android:exported="true" />
+        <activity
+            android:name=".IndexActivity"
+            android:exported="true" />
+        <activity
+            android:name=".RegisterActivity"
+            android:exported="true" />
+        <activity
+            android:name=".LoginActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
