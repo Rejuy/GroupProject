@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.groupproject">
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+
     <application
         android:requestLegacyExternalStorage="true"
         android:allowBackup="true"
@@ -15,7 +14,25 @@
             android:name=".itemCreateActivity"
             android:exported="true" />
         <activity
-            android:name=".MainActivity"
+            android:name=".AccountActivity"
+            android:exported="true" />
+        <activity
+            android:name=".IntroductionActivity"
+            android:exported="true" />
+        <activity
+            android:name=".SelfItemActivity"
+            android:exported="true" />
+        <activity
+            android:name=".SearchResultActivity"
+            android:exported="true" />
+        <activity
+            android:name=".IndexActivity"
+            android:exported="true" />
+        <activity
+            android:name=".RegisterActivity"
+            android:exported="true" />
+        <activity
+            android:name=".LoginActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
