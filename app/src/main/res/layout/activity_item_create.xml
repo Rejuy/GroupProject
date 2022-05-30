@@ -42,11 +42,25 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="100dp"
+        android:gravity="center"
+        android:orientation="vertical">
         <Button
+            android:id="@+id/add_btn"
+            android:layout_width="wrap_content"
+            android:contentDescription=" "
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:background="@drawable/ic_baseline_add_circle_outline_24"/>
+        <TextView
+            android:id="@+id/add_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="请在此次添加图片/视频/音频"/>
+        <ImageView
+            android:id="@+id/image_show"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>
-
     </LinearLayout>
 
     <LinearLayout
