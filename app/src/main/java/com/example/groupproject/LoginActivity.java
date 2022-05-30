@@ -5,9 +5,15 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.StrictMode;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
+
+import java.util.HashMap;
+
+import cn.hutool.core.io.FileUtil;
+import cn.hutool.http.HttpUtil;
 
 public class LoginActivity extends AppCompatActivity {
     private static final String LOG_TAG = LoginActivity.class.getSimpleName();
@@ -29,6 +35,11 @@ public class LoginActivity extends AppCompatActivity {
         accountEditText = findViewById(R.id.login_edit_account);
         passwordEditText = findViewById(R.id.login_edit_password);
 
+        if (android.os.Build.VERSION.SDK_INT > 9) {
+            StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+            StrictMode.setThreadPolicy(policy);
+        }
+
     }
 
     public void toRegister(View view) {
@@ -46,26 +57,42 @@ public class LoginActivity extends AppCompatActivity {
 
         // Post information to backend
         // TODO
-        int result = LOGIN_SUCCESS;
-        int userId = 1;
+//        HashMap <String,String> data  = new HashMap <String,String>();
+//        data.put("user_name",account);
+//        data.put("password",password);
+//        BackEndConnection ccc = new BackEndConnection();
+//        String url = "http://183.172.174.207:8765/user/login/";
+//        String res = ccc.test(url,data);
+//        System.out.println("==================");
+//        System.out.println(res);
+//        System.out.println("==================");
+//        HashMap<String, Object> paramMap = new HashMap<>();
+//        paramMap.put("picture", FileUtil.file("/mnt/sdcard/DCIM/Camera/VID_20220516_134006.mp4"));
+//
+//        String result1= HttpUtil.post("http://183.172.174.207:8765/filetest/", paramMap);
 
-        // React to the result of backend
-        if (result == LOGIN_SUCCESS)
-        {
-            // Success: jump to index activity
-            Intent intent = new Intent(this, IndexActivity.class);
-            intent.putExtra("userId", userId);
-            startActivityForResult(intent, NORMAL_REQUEST);
-        }
-        else if (result == SOMETHING_WENT_WRONG)
-        {
-            // Something went wrong
-            // TODO
-        }
-        else
-        {
-            // Failure: notice the user to edit again
-            // TODO
-        }
+        Intent tmp_tent = new Intent(this,itemCreateActivity.class);
+        startActivityForResult(tmp_tent,NORMAL_REQUEST);
+//        int result = LOGIN_SUCCESS;
+//        int userId = 1;
+//
+//        // React to the result of backend
+//        if (result == LOGIN_SUCCESS)
+//        {
+//            // Success: jump to index activity
+//            Intent intent = new Intent(this, IndexActivity.class);
+//            intent.putExtra("userId", userId);
+//            startActivityForResult(intent, NORMAL_REQUEST);
+//        }
+//        else if (result == SOMETHING_WENT_WRONG)
+//        {
+//            // Something went wrong
+//            // TODO
+//        }
+//        else
+//        {
+//            // Failure: notice the user to edit again
+//            // TODO
+//        }
     }
 }
