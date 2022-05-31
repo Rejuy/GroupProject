@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.location.Geocoder;
 import android.os.Bundle;
 import android.os.StrictMode;
 import android.util.Log;
@@ -71,7 +72,7 @@ public class LoginActivity extends AppCompatActivity {
 //
 //        String result1= HttpUtil.post("http://183.172.174.207:8765/filetest/", paramMap);
 
-        Intent tmp_tent = new Intent(this,itemCreateActivity.class);
+        Intent tmp_tent = new Intent(this,CaoGaoList.class);
         startActivityForResult(tmp_tent,NORMAL_REQUEST);
 //        int result = LOGIN_SUCCESS;
 //        int userId = 1;

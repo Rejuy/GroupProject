@@ -40,6 +40,8 @@ import androidx.core.content.FileProvider;
 
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -47,9 +49,16 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.text.NumberFormat;
+
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.TimeZone;
 
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.http.HttpUtil;
@@ -60,12 +69,14 @@ public class itemCreateActivity extends AppCompatActivity {
     private static final int LOCAL_CROP = 13;// 本地图库
     private static final int TAKE_VIDEO = 14;
     private static final int LOCAL_VIDEO = 15;
-    private ImageView iv_show_picture;
     private File tmp_photo;
+    private EditText title;
+    private EditText content;
+    private int global_type = 0;
 
     private Uri imageUri;
     private Uri VideoUri;
-    String total_msg;
+    String total_msg = "";
     Activity that = this;
     String tmp_title = "unset";
     String tmp_content = "unset";
@@ -73,7 +84,7 @@ public class itemCreateActivity extends AppCompatActivity {
     String tmp_loc = "unset";
     String tmp_filepath = "unset";
     ArrayList<item_unfinished> item_list = new ArrayList<>();
-    Button file_btn;
+   ImageView file_btn;
     Button save_btn;
     TextView add_text;
 
@@ -87,18 +98,54 @@ public class itemCreateActivity extends AppCompatActivity {
             StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
             StrictMode.setVmPolicy(builder.build());
         }
-        Spinner type_spin = findViewById(R.id.item_types);
-        type_spin.setSelection(0);
-        type_spin.setOnItemSelectedListener(new MySelectedListener());
-//        mygeo_Thread my = new mygeo_Thread();
-//        my.run();
-        System.out.println(total_msg);
-
-        iv_show_picture = (ImageView)findViewById(R.id.image_show);
         file_btn = findViewById(R.id.add_btn);
         file_btn.setVisibility(View.VISIBLE);
         add_text = findViewById(R.id.add_text);
         add_text.setVisibility(View.VISIBLE);
+        readSDcard();
+        if(total_msg!=""){
+            HashMap mapType = JSON.parseObject(total_msg,HashMap.class);
+//            String tmp_str=mapType.get("save_list").toString();
+            System.out.println(mapType.get("save_list").toString());
+            JSONArray tmp_list = (JSONArray) mapType.get("save_list");
+            JSONObject tmp =  (JSONObject) tmp_list.get(0);
+            title = findViewById(R.id.title_input);
+            title.setText(tmp.get("title").toString());
+            content = findViewById(R.id.content_input);
+            content.setText(tmp.get("content").toString());
+            global_type= (int)tmp.get("type");
+
+            String tmp_file = tmp.get("filename").toString();
+            if(!tmp_file.equals("unset")){
+                tmp_filepath = tmp_file;
+                if(global_type ==1){
+                    File file = new File(tmp_filepath);
+                    if(file.exists()){
+                        Bitmap bm = BitmapFactory.decodeFile(tmp_filepath);
+                        file_btn.setImageBitmap(bm);
+                    }
+
+                }else if(global_type ==3){
+                    Bitmap bm = getVideoThumb(tmp_filepath);
+//                    file_btn.setVisibility(View.INVISIBLE);
+                    add_text.setVisibility(View.INVISIBLE);
+                    file_btn.setImageBitmap(bm);
+                }else{
+
+                }
+            }
+
+
+        }
+        Spinner type_spin = findViewById(R.id.item_types);
+        type_spin.setSelection(global_type);
+        type_spin.setOnItemSelectedListener(new MySelectedListener());
+
+//        mygeo_Thread my = new mygeo_Thread();
+//        my.run();
+//        System.out.println(total_msg);
+
+
         file_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -117,6 +164,7 @@ public class itemCreateActivity extends AppCompatActivity {
         EditText content = findViewById(R.id.content_input);
         Button send_btn = findViewById(R.id.send_button);
         send_btn.setOnClickListener(new View.OnClickListener() {
+
             @Override
             public void onClick(View v) {
                 if(title.length()==0){
@@ -180,15 +228,16 @@ public class itemCreateActivity extends AppCompatActivity {
                 item_list.add(it);
                 item_unfinished_list save_list = new item_unfinished_list();
                 save_list.setlist(item_list);
+
                 String str = JSON.toJSONString(save_list);
+                writeSDcard(str);
                 System.out.println(str);
             }
         });
     }
-    class mygeo_Thread extends Thread{
+    class mygeo_Thread implements Runnable{
         @Override
         public void run() {
-            super.run();
             LocationManager loactionmanager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
             Criteria criteria = new Criteria();
             criteria.setAccuracy(Criteria.ACCURACY_FINE);
@@ -204,8 +253,24 @@ public class itemCreateActivity extends AppCompatActivity {
                         String[]{Manifest.permission.ACCESS_COARSE_LOCATION }, 1);
             }
             Location location = loactionmanager.getLastKnownLocation(provider);
-            GeocodeAddress my_geo = new GeocodeAddress();
-            my_geo.onPostExecute(my_geo.doInBackground(location));
+
+            double longitude = location.getLongitude();//经度
+            double latitude = location.getLatitude();
+            NumberFormat nf = NumberFormat.getInstance();
+            nf.setGroupingUsed(false);
+            String longti = nf.format(longitude);
+            String lati = nf.format(latitude);
+            String geo_str_o = "https://maps.googleapis.com/maps/api/geocode/json?latlng=";
+            String geo_str_t = lati+","+longti+"&language=zh-CN&sensor=false";//37.422,-122.084&language=zh-CN&sensor=false
+            String geo_str = geo_str_o+geo_str_t;
+            System.out.println(geo_str);
+            try{
+                String geo_res = HttpUtil.get(geo_str);
+                System.out.println(geo_res);
+            } catch (Exception e) {e.printStackTrace();}
+
+//            GeocodeAddress my_geo = new GeocodeAddress();
+//            my_geo.onPostExecute(my_geo.doInBackground(location));
         }
     }
 
@@ -317,44 +382,6 @@ public class itemCreateActivity extends AppCompatActivity {
         public ArrayList<item_unfinished> save_list = new ArrayList<>();
         public void setlist(ArrayList<item_unfinished> it_list){
             save_list = it_list;
-        }
-    }
-    public class item_unfinished{
-        public int id = 0;
-        private String title = "unset";
-        private String content= "unset";
-        private  int type = 0;//默认为纯文本
-        private String loc= "unset";
-        private String filename= "unset";
-        public void setTitle(String str){
-            this.title=str;
-        }
-        public void setContent(String str){
-            this.content=str;
-        }
-        public void setType(int type){
-            this.type=type;
-        }
-        public void setLoc(String str){
-            this.loc=str;
-        }
-        public void setFilename(String str){
-            this.filename=str;
-        }
-        public String getTitle(){
-            return  this.title;
-        }
-        public String getContent(){
-            return this.content;
-        }
-        public String getLoc(){
-            return this.loc;
-        }
-        public int getType(){
-            return this.type;
-        }
-        public String getFilename(){
-            return this.filename;
         }
     }
 
@@ -525,9 +552,9 @@ public class itemCreateActivity extends AppCompatActivity {
                         // 根据文件流解析生成Bitmap对象
                         Bitmap bitmap = BitmapFactory.decodeStream(getContentResolver().openInputStream(imageUri), null, option);
                         // 展示图片
-                        file_btn.setVisibility(View.INVISIBLE);
+//                        file_btn.setVisibility(View.INVISIBLE);
                         add_text.setVisibility(View.INVISIBLE);
-                        iv_show_picture.setImageBitmap(bitmap);
+                        file_btn.setImageBitmap(bitmap);
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -559,9 +586,9 @@ public class itemCreateActivity extends AppCompatActivity {
                         option.inPreferredConfig = Bitmap.Config.RGB_565;
                         Bitmap bitmap = BitmapFactory.decodeStream(getContentResolver().openInputStream(tmp_uri), null, option);
                         // 展示图片
-                        file_btn.setVisibility(View.INVISIBLE);
+//                        file_btn.setVisibility(View.INVISIBLE);
                         add_text.setVisibility(View.INVISIBLE);
-                        iv_show_picture.setImageBitmap(bitmap);
+                        file_btn.setImageBitmap(bitmap);
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -575,9 +602,9 @@ public class itemCreateActivity extends AppCompatActivity {
                     String path = getFilePathFromUri(itemCreateActivity.this,data.getData());
                     tmp_filepath =path;
                     Bitmap bm = getVideoThumb(path);
-                    file_btn.setVisibility(View.INVISIBLE);
+//                    file_btn.setVisibility(View.INVISIBLE);
                     add_text.setVisibility(View.INVISIBLE);
-                    iv_show_picture.setImageBitmap(bm);
+                    file_btn.setImageBitmap(bm);
 
                 }
                 break;
@@ -592,9 +619,9 @@ public class itemCreateActivity extends AppCompatActivity {
                     tmp_filepath =path;
                     Bitmap bm = getVideoThumb(path);
 
-                    file_btn.setVisibility(View.INVISIBLE);
+//                    file_btn.setVisibility(View.INVISIBLE);
                     add_text.setVisibility(View.INVISIBLE);
-                    iv_show_picture.setImageBitmap(bm);
+                    file_btn.setImageBitmap(bm);
                 }
                 break;
             }
