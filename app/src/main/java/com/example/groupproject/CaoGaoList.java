@@ -46,7 +46,7 @@ public class CaoGaoList extends AppCompatActivity {
                 it.setTitle(tmp.get("title").toString());
                 it.setContent(tmp.get("content").toString());
                 it.setLoc(tmp.get("loc").toString());
-                it.setFilename(tmp.get("title").toString());
+                it.setFilename(tmp.get("filename").toString());
                 it.setTime("");
                 it.setType((int)tmp.get("type"));
                 itemList.add(it);
