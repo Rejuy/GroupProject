@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.location.Geocoder;
 import android.os.Bundle;
 import android.os.StrictMode;
 import android.util.Log;
@@ -61,7 +62,6 @@ public class LoginActivity extends AppCompatActivity {
         // Get user information
         String account = accountEditText.getText().toString();
         String password = passwordEditText.getText().toString();
-
         HashMap<String, Object> paramMap = new HashMap<>();
         paramMap.put("user_name", account);
         paramMap.put("password", password);

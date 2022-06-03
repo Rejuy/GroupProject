@@ -25,6 +25,12 @@
             android:name=".DisplayUsersActivity"
             android:exported="true" />
         <activity
+            android:name=".DetailedItemActivity"
+            android:exported="true" />
+        <activity
+            android:name=".CaoGaoList"
+            android:exported="true" />
+        <activity
             android:name=".itemCreateActivity"
             android:exported="true" />
         <activity
