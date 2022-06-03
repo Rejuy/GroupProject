@@ -25,4 +25,10 @@
     <color name="aquamarine">#66CDAA</color>
     <color name="DarkSeaGreen1">#9BCD9B</color>
     <color name="SeaGreen1">#43CD80</color>
+
+    <color name="grey">#797979</color>
+    <color name="yellow_green">#98DA56</color>
+    <color name="yellow">#BCBC3D</color>
+    <color name="dark_red">#D58140</color>
+    <color name="dark_blue">#40A1D5</color>
 </resources>

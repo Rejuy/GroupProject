@@ -103,7 +103,24 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:id="@+id/spinner_part"
+            android:layout_marginRight="10dp"
+            />
+
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <Spinner
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
             android:id="@+id/spinner_sort"
+            android:layout_marginLeft="10dp"
             />
 
         <Spinner
@@ -115,6 +132,7 @@
             />
 
     </LinearLayout>
+
 
     <TextView
         android:id="@+id/test_search"
@@ -139,6 +157,13 @@
 
     <TextView
         android:id="@+id/test_range"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="asdfasdfasdf"
+        />
+
+    <TextView
+        android:id="@+id/test_part"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="asdfasdfasdf"

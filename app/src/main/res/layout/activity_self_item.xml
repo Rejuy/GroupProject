@@ -105,6 +105,36 @@
 
         </LinearLayout>
 
+        <Button
+            android:id="@+id/follow_user_button"
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:layout_marginLeft="10dp"
+            android:layout_gravity="center"
+            android:background="@color/gold"
+            android:text="关注"
+            android:layout_weight="1"
+
+            >
+
+
+        </Button>
+
+        <Button
+            android:id="@+id/block_user_button"
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:layout_marginLeft="10dp"
+            android:layout_gravity="center"
+            android:background="@color/grey"
+            android:text="屏蔽"
+            android:layout_weight="1"
+            android:textColor="@color/fancy_white"
+            >
+
+
+        </Button>
+
 
     </LinearLayout>
 
