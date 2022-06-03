@@ -10,7 +10,7 @@ import android.widget.TextView;
 import com.google.android.material.tabs.TabLayout;
 
 public class IndexActivity extends AppCompatActivity {
-    private int user_id;
+    public static int user_id;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

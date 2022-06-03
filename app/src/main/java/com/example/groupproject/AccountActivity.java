@@ -9,6 +9,8 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import java.util.HashMap;
+
 public class AccountActivity extends AppCompatActivity {
     private String name = "这里是用户名";;
     private String email = "11111@aks.com";
@@ -46,9 +48,18 @@ public class AccountActivity extends AppCompatActivity {
 //                Intent intent = new Intent(getActivity(), SearchResultActivity.class);
                 name = editNewName.getText().toString();
                 // TODO: Connect backend
+                HashMap<String, Object> paramMap = new HashMap<>();
+//                paramMap.put("user_name", account);
+//                paramMap.put("password", password);
+                ///////////////////////////////////////////
+                ////////// Backend Connection /////////////
+                // String result = HttpUtil.post(url, paramMap);
+                // result (String) -->> result (json)
+                ///////////////////////////////////////////
                 curName.setText("当前用户名：" + name);
 //                intent.putExtra("searchContent", searchContent);
 //                startActivityForResult(intent, TEXT_REQUEST);
+
             }
         });
 
@@ -63,6 +74,14 @@ public class AccountActivity extends AppCompatActivity {
 //                Intent intent = new Intent(getActivity(), SearchResultActivity.class);
                 email = editNewEmail.getText().toString();
                 // TODO: Connect backend
+                HashMap<String, Object> paramMap = new HashMap<>();
+//                paramMap.put("user_name", account);
+//                paramMap.put("password", password);
+                ///////////////////////////////////////////
+                ////////// Backend Connection /////////////
+                // String result = HttpUtil.post(url, paramMap);
+                // result (String) -->> result (json)
+                ///////////////////////////////////////////
                 curEmail.setText("当前邮箱：" + email);
 //                intent.putExtra("searchContent", searchContent);
 //                startActivityForResult(intent, TEXT_REQUEST);
@@ -80,6 +99,14 @@ public class AccountActivity extends AppCompatActivity {
 //                Intent intent = new Intent(getActivity(), SearchResultActivity.class);
                 password = editNewPassword.getText().toString();
                 // TODO: Connect backend
+                HashMap<String, Object> paramMap = new HashMap<>();
+//                paramMap.put("user_name", account);
+//                paramMap.put("password", password);
+                ///////////////////////////////////////////
+                ////////// Backend Connection /////////////
+                // String result = HttpUtil.post(url, paramMap);
+                // result (String) -->> result (json)
+                ///////////////////////////////////////////
                 curPassword.setText("当前密码：" + password);
 //                intent.putExtra("searchContent", searchContent);
 //                startActivityForResult(intent, TEXT_REQUEST);

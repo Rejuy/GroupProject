@@ -5,10 +5,15 @@ public class Item {
     private String title;
     private String content;
     private String userName;
+    private String followCondition;
     private int userId;
     private int likesCount;
     private int commentsCount;
     private Boolean liked;
+
+    public static final String FOLLOW = "已关注";
+    public static final String HAVE_NOT_FOLLOW = "未关注";
+    public static final String MYSELF = "我自己";
     // TODO: user image
 
     private int type;
@@ -21,6 +26,7 @@ public class Item {
                 String _title,
                 String _content,
                 String _userName,
+                String _followCondition,
                 int _userId,
                 int _likesCount,
                 int _commentsCount,
@@ -31,12 +37,15 @@ public class Item {
         title = _title;
         content = _content;
         userName = _userName;
+        followCondition = _followCondition;
         userId = _userId;
         likesCount = _likesCount;
         commentsCount = _commentsCount;
         type = _type;
         liked = _liked;
     }
+
+    public int getItemId() { return itemId; }
 
     public String getTitle() {
         return title;
@@ -49,6 +58,8 @@ public class Item {
     public String getUserName() {
         return userName;
     }
+
+    public String getFollowCondition() { return followCondition; }
 
     public int getLikesCount() {
         return likesCount;

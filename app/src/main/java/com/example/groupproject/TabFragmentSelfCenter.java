@@ -1,5 +1,7 @@
 package com.example.groupproject;
 
+import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 
@@ -8,6 +10,7 @@ import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -33,6 +36,9 @@ public class TabFragmentSelfCenter extends Fragment {
     private TextView noticeButton;
     private TextView draftButton;
     private TextView accountButton;
+    private TextView followButton;
+    private TextView followedButton;
+    private TextView blockButton;
     private int userId;
 
 
@@ -87,6 +93,42 @@ public class TabFragmentSelfCenter extends Fragment {
             }
         });
 
+        followButton = (TextView) rootView.findViewById(R.id.follow_button);
+        followButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                toDisplayUser(DisplayUsersActivity.FOLLOW);
+            }
+        });
+
+        followedButton = (TextView) rootView.findViewById(R.id.followed_button);
+        followedButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                toDisplayUser(DisplayUsersActivity.FOLLOWED);
+            }
+        });
+
+        blockButton = (TextView) rootView.findViewById(R.id.block_button);
+        blockButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                toDisplayUser(DisplayUsersActivity.BLOCK);
+            }
+        });
+
+        ImageView portraitButton = (ImageView) rootView.findViewById(R.id.user_image);
+        portraitButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                System.out.print("image click");
+                Intent intent = new Intent(getActivity(), SelfItemActivity.class);
+                intent.putExtra("userId", userId);
+                intent.putExtra("userName", "asdf");
+                startActivity(intent);
+            }
+        });
+
         String userIntroduction = userId + "这里是用户简介这里是用户简介这里是用户简介这里是用户简介这里是用户简介" +
                 "这里是用户简介这里是用户简介这里是用户简介这里是用户简介这里是用户简介这里是用户简介" +
                 "这里是用户简介这里是用户简介这里是用户简介这里是用户简介这里是用户简介这里是用户简介这里是用户简介";
@@ -95,5 +137,13 @@ public class TabFragmentSelfCenter extends Fragment {
 
 
         return rootView;
+    }
+
+    public void toDisplayUser(String range)
+    {
+        Intent intent = new Intent(getActivity(), DisplayUsersActivity.class);
+//                String searchContent = searchEditText.getText().toString();
+        intent.putExtra("range", range);
+        startActivityForResult(intent, NORMAL_REQUEST);
     }
 }
