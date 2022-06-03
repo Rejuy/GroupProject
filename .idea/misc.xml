@@ -8,28 +8,23 @@
         <entry key="..\:/AndroidCode/GroupProject/app/src/main/res/drawable/item_bg.xml" value="0.38229166666666664" />
         <entry key="..\:/AndroidCode/GroupProject/app/src/main/res/drawable/line.xml" value="0.26979166666666665" />
         <entry key="..\:/AndroidCode/GroupProject/app/src/main/res/layout/activity_account.xml" value="0.36614583333333334" />
+        <entry key="..\:/AndroidCode/GroupProject/app/src/main/res/layout/activity_display_users.xml" value="0.2046875" />
         <entry key="..\:/AndroidCode/GroupProject/app/src/main/res/layout/activity_index.xml" value="0.1848101265822785" />
         <entry key="..\:/AndroidCode/GroupProject/app/src/main/res/layout/activity_introduction.xml" value="0.25" />
-        <entry key="..\:/AndroidCode/GroupProject/app/src/main/res/layout/activity_login.xml" value="0.2046875" />
+        <entry key="..\:/AndroidCode/GroupProject/app/src/main/res/layout/activity_login.xml" value="0.4" />
         <entry key="..\:/AndroidCode/GroupProject/app/src/main/res/layout/activity_main.xml" value="0.3432971014492754" />
         <entry key="..\:/AndroidCode/GroupProject/app/src/main/res/layout/activity_register.xml" value="0.36614583333333334" />
         <entry key="..\:/AndroidCode/GroupProject/app/src/main/res/layout/activity_search_result.xml" value="0.25" />
         <entry key="..\:/AndroidCode/GroupProject/app/src/main/res/layout/activity_search_view.xml" value="0.2046875" />
-        <entry key="..\:/AndroidCode/GroupProject/app/src/main/res/layout/activity_self_item.xml" value="0.5" />
+        <entry key="..\:/AndroidCode/GroupProject/app/src/main/res/layout/activity_self_item.xml" value="0.536" />
         <entry key="..\:/AndroidCode/GroupProject/app/src/main/res/layout/fragment_tab_item.xml" value="0.33" />
         <entry key="..\:/AndroidCode/GroupProject/app/src/main/res/layout/fragment_tab_self_center.xml" value="0.36614583333333334" />
         <entry key="..\:/AndroidCode/GroupProject/app/src/main/res/layout/item_list.xml" value="0.36614583333333334" />
         <entry key="..\:/AndroidCode/GroupProject/app/src/main/res/layout/layout_first.xml" value="0.2046875" />
         <entry key="..\:/AndroidCode/GroupProject/app/src/main/res/layout/layout_third.xml" value="0.2046875" />
         <entry key="..\:/AndroidCode/GroupProject/app/src/main/res/layout/postlist_item.xml" value="0.4" />
-      </map>
-    </option>
-  </component>
-  <component name="DesignSurface">
-    <option name="filePathToZoomLevelMap">
-      <map>
-        <entry key="..\:/android hw/GroupProject/app/src/main/res/layout/activity_item_create.xml" value="0.22" />
-        <entry key="..\:/android hw/GroupProject/app/src/main/res/layout/activity_main.xml" value="0.16530797101449277" />
+        <entry key="..\:/AndroidCode/GroupProject/app/src/main/res/layout/postlist_user.xml" value="0.2046875" />
+        <entry key="..\:/AndroidCode/GroupProject/app/src/main/res/layout/user_list.xml" value="0.2046875" />
       </map>
     </option>
   </component>

@@ -3,12 +3,17 @@ package com.example.groupproject;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.Activity;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.StrictMode;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.TextView;
+import android.widget.Toast;
+import android.app.Dialog;
+import androidx.appcompat.app.AlertDialog;
 
 import java.util.HashMap;
 
@@ -19,10 +24,12 @@ public class LoginActivity extends AppCompatActivity {
     private static final String LOG_TAG = LoginActivity.class.getSimpleName();
     public static final int NORMAL_REQUEST = 0;
 
-    public static final int LOGIN_SUCCESS = 0;
+    public static final String USER_NOT_FOUND = "user not found";
+    public static final String WRONG_PASSWORD = "wrong password";
     public static final int WRONG_ACCOUNT = 1;
-    public static final int WRONG_PASSWORD = 2;
     public static final int SOMETHING_WENT_WRONG = -1;
+
+    public static final String url = Constant.backendUrl + Constant.loginUrl;
 
     private EditText accountEditText;
     private EditText passwordEditText;
@@ -55,44 +62,52 @@ public class LoginActivity extends AppCompatActivity {
         String account = accountEditText.getText().toString();
         String password = passwordEditText.getText().toString();
 
-        // Post information to backend
-        // TODO
-//        HashMap <String,String> data  = new HashMap <String,String>();
-//        data.put("user_name",account);
-//        data.put("password",password);
-//        BackEndConnection ccc = new BackEndConnection();
-//        String url = "http://183.172.174.207:8765/user/login/";
-//        String res = ccc.test(url,data);
-//        System.out.println("==================");
-//        System.out.println(res);
-//        System.out.println("==================");
-//        HashMap<String, Object> paramMap = new HashMap<>();
-//        paramMap.put("picture", FileUtil.file("/mnt/sdcard/DCIM/Camera/VID_20220516_134006.mp4"));
-//
-//        String result1= HttpUtil.post("http://183.172.174.207:8765/filetest/", paramMap);
+        HashMap<String, Object> paramMap = new HashMap<>();
+        paramMap.put("user_name", account);
+        paramMap.put("password", password);
+        ///////////////////////////////////////////
+        ////////// Backend Connection /////////////
+        // String result = HttpUtil.post(url, paramMap);
+        // result (String) -->> result (json)
+        ///////////////////////////////////////////
+        String result = "1";
 
-        Intent tmp_tent = new Intent(this,itemCreateActivity.class);
-        startActivityForResult(tmp_tent,NORMAL_REQUEST);
-//        int result = LOGIN_SUCCESS;
-//        int userId = 1;
-//
-//        // React to the result of backend
-//        if (result == LOGIN_SUCCESS)
-//        {
-//            // Success: jump to index activity
-//            Intent intent = new Intent(this, IndexActivity.class);
-//            intent.putExtra("userId", userId);
-//            startActivityForResult(intent, NORMAL_REQUEST);
-//        }
-//        else if (result == SOMETHING_WENT_WRONG)
-//        {
-//            // Something went wrong
-//            // TODO
-//        }
-//        else
-//        {
-//            // Failure: notice the user to edit again
-//            // TODO
-//        }
+        // React to the result of backend
+        if (result == USER_NOT_FOUND)
+        {
+            // User not found
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setIcon(null);
+            builder.setTitle("提示");
+            builder.setMessage("用户名不存在！请重试。");
+            builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    Toast.makeText(LoginActivity.this, "请重新输入...", Toast.LENGTH_SHORT).show();
+                }
+            }).show();
+        }
+        else if (result == WRONG_PASSWORD)
+        {
+            // Wrong password
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setIcon(null);
+            builder.setTitle("提示");
+            builder.setMessage("密码错误！请重试。");
+            builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    Toast.makeText(LoginActivity.this, "请重新输入...", Toast.LENGTH_SHORT).show();
+                }
+            }).show();
+        }
+        else
+        {
+            // Success: jump to index activity
+            Intent intent = new Intent(this, IndexActivity.class);
+            int userId = Integer.valueOf(result);
+            intent.putExtra("userId", userId);
+            startActivityForResult(intent, NORMAL_REQUEST);
+        }
     }
 }

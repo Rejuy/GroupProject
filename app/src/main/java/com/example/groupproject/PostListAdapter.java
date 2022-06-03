@@ -1,18 +1,26 @@
 package com.example.groupproject;
 
 import android.content.Context;
+
+import androidx.appcompat.app.AlertDialog;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.recyclerview.widget.RecyclerView;
 
+import org.w3c.dom.Text;
+
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -27,6 +35,12 @@ public class PostListAdapter extends
 //    private final LinkedList<String> mContentList;
     private final LayoutInflater mInflater;
 
+    private static final String likeUrl = Constant.backendUrl + Constant.itemLikeUrl;
+    private static final String dislikeUrl = Constant.backendUrl + Constant.itemDislikeUrl;
+    private static final String SUCCESS = "ok";
+    private static final String FAILURE = "like not found";
+
+
     class PostViewHolder extends RecyclerView.ViewHolder
 //            implements View.OnClickListener {
     {
@@ -35,6 +49,7 @@ public class PostListAdapter extends
         public final TextView userNameItemView;
         public final TextView likesCountItemView;
         public final TextView commentCountItemView;
+        public final TextView followCondition;
         public final ImageView likeButton;
         public final ImageView commentButton;
         public final ImageView shareButton;
@@ -56,6 +71,7 @@ public class PostListAdapter extends
             userNameItemView = itemView.findViewById(R.id.user_name);
             likesCountItemView = itemView.findViewById(R.id.like_count_textview);
             commentCountItemView = itemView.findViewById(R.id.comment_count_textview);
+            followCondition = itemView.findViewById(R.id.follow_condition);
             likeButton = itemView.findViewById(R.id.like_button);
             commentButton = itemView.findViewById(R.id.comment_button);
             shareButton = itemView.findViewById(R.id.share_button);
@@ -142,6 +158,7 @@ public class PostListAdapter extends
         holder.userNameItemView.setText(curItem.getUserName());
         holder.commentCountItemView.setText(String.valueOf(curItem.getCommentsCount()));
         holder.likesCountItemView.setText(String.valueOf(curItem.getLikesCount()));
+        holder.followCondition.setText(curItem.getFollowCondition());
 
         holder.likeButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -149,18 +166,49 @@ public class PostListAdapter extends
                 int curPosition = holder.getAdapterPosition();
                 Item curItem = itemList.get(curPosition);
                 if (curItem.getLiked()) {
+                    // TODO: Send change to backend
+                    HashMap<String, Object> paramMap = new HashMap<>();
+                    paramMap.put("item_id", curItem.getItemId());
+                    paramMap.put("user_id", curItem.getUserId());
+                    ///////////////////////////////////////////
+                    ////////// Backend Connection /////////////
+                    // String result = HttpUtil.post(likeUrl, paramMap);
+                    // result (String) -->> result (json)
+                    ///////////////////////////////////////////
+                    String result = SUCCESS;
+                    if (result.equals(FAILURE))
+                    {
+                        AlertDialog.Builder builder = new AlertDialog.Builder(holder.itemView.getContext());
+                        builder.setIcon(null);
+                        builder.setTitle("提示");
+                        builder.setMessage("未查询到点赞信息！");
+                        builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+//                                Toast.makeText(getActivity(), "请重新查询...", Toast.LENGTH_SHORT).show();
+                            }
+                        }).show();
+                        return;
+                    }
                     curItem.unlike();
                     itemList.set(position, curItem);
                     holder.likeButton.setImageDrawable(v.getResources().getDrawable(R.drawable.ic_unlike));
                     holder.likesCountItemView.setText(String.valueOf(curItem.getLikesCount()));
-                    // TODO: Send change to backend
                 }
                 else {
+                    // TODO: Send change to backend
+                    HashMap<String, Object> paramMap = new HashMap<>();
+                    paramMap.put("item_id", curItem.getItemId());
+                    paramMap.put("user_id", curItem.getUserId());
+                    ///////////////////////////////////////////
+                    ////////// Backend Connection /////////////
+                    // String result = HttpUtil.post(dislikeUrl, paramMap);
+                    // result (String) -->> result (json)
+                    ///////////////////////////////////////////
                     curItem.like();
                     itemList.set(position, curItem);
                     holder.likeButton.setImageDrawable(v.getResources().getDrawable(R.drawable.ic_like));
                     holder.likesCountItemView.setText(String.valueOf(curItem.getLikesCount()));
-                    // TODO: Send change to backend
                 }
             }
         });
@@ -178,6 +226,20 @@ public class PostListAdapter extends
                 intent.putExtra("userName", curItem.getUserName());
                 curContext.startActivity(intent);
 
+            }
+        });
+
+        holder.shareButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                int curPosition = holder.getAdapterPosition();
+                Item curItem = itemList.get(curPosition);
+                String shareText = "【标题】" + curItem.getTitle() + "\n" + "【内容】" + curItem.getContent();
+                Intent sendIntent = new Intent();
+                sendIntent.setAction(Intent.ACTION_SEND);
+                sendIntent.putExtra(Intent.EXTRA_TEXT, shareText);//分享的文本内容
+                sendIntent.setType("text/plain");
+                holder.itemView.getContext().startActivity(Intent.createChooser(sendIntent, "分享到"));
             }
         });
 

@@ -1,8 +1,10 @@
 package com.example.groupproject;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -19,6 +21,7 @@ import android.widget.Toast;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -38,6 +41,9 @@ public class TabFragmentItem extends Fragment {
 
     public static final int ALL_ITEM_STATE = 0;
     public static final int FOLLOW_ITEM_STATE = 1;
+
+    public static final String url = Constant.backendUrl + Constant.getItemUrl;
+    public static final String NO_ITEM = "no item";
 
     // TODO: Rename and change types of parameters
     private String mParam1;
@@ -99,8 +105,6 @@ public class TabFragmentItem extends Fragment {
         textViewUser.setText(id_);
 
         textViewState = rootView.findViewById(R.id.state);
-//        String id_ = Integer.toString(user_id);
-//        textViewUser.setText(id_);
 
         searchEditText = rootView.findViewById(R.id.index_edit_search);
 
@@ -113,6 +117,7 @@ public class TabFragmentItem extends Fragment {
                 Intent intent = new Intent(getActivity(), SearchResultActivity.class);
                 String searchContent = searchEditText.getText().toString();
                 intent.putExtra("searchContent", searchContent);
+                intent.putExtra("userId", userId);
                 startActivityForResult(intent, TEXT_REQUEST);
             }
         });
@@ -137,6 +142,51 @@ public class TabFragmentItem extends Fragment {
                 followItemButton.setEnabled(true);
                 allItemButton.setBackgroundColor(getResources().getColor(R.color.dark_green));
                 followItemButton.setBackgroundColor(getResources().getColor(R.color.title_bg));
+
+                HashMap<String, Object> paramMap = new HashMap<>();
+                paramMap.put("user_id", userId);
+                paramMap.put("search", "");
+                paramMap.put("search_type", "");
+                paramMap.put("type", new Boolean[]{true, true, true, true});
+                paramMap.put("follower", false);
+                paramMap.put("sort", "time");
+                ///////////////////////////////////////////
+                ////////// Backend Connection /////////////
+                // String result = HttpUtil.post(curUrl, paramMap);
+                // result (String) -->> result (json)
+                ///////////////////////////////////////////
+//                String result = "no item";
+//                if (result == NO_ITEM)
+//                {
+//                    alertNoItem();
+//                    return;
+//                }
+
+                // Construct temporary data
+                itemList.clear();
+                for (int i = 0; i < 10; i++) {
+                    String curUserName = "测试用户all" + i;
+                    String curTitle = "测试标题all" + i;
+                    String curContent = "all测试内容测试内容测试内容测试内容测试内容测试内容测试内容测试" +
+                            "内容测试内容测试内容测试内容测试内容测试内容测试内容测试内容测试内容" + i + "\n";
+                    String curFollowCondition = Item.HAVE_NOT_FOLLOW;
+                    Date d = new Date();
+                    System.out.println(d);
+                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                    String curTime = sdf.format(d);
+                    curContent += curTime;
+                    int curLikesCount = i * 100;
+                    int curCommentsCount = i * 10;
+                    int curType = Item.TEXT;
+                    Item curItem = new Item(i, curTitle, curContent, curUserName, curFollowCondition, i,
+                            curLikesCount, curCommentsCount, curType, false);
+                    itemList.add(curItem);
+                }
+                mAdapter = new PostListAdapter(getActivity(), itemList);
+                // Connect the adapter with the recycler view.
+                mRecyclerView.setAdapter(mAdapter);
+                // Give the recycler view a default layout manager.
+                mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
             }
         });
 
@@ -149,16 +199,80 @@ public class TabFragmentItem extends Fragment {
                 allItemButton.setBackgroundColor(getResources().getColor(R.color.title_bg));
                 followItemButton.setBackgroundColor(getResources().getColor(R.color.dark_green));
                 followItemButton.setEnabled(false);
+
+                HashMap<String, Object> paramMap = new HashMap<>();
+                paramMap.put("user_id", userId);
+                paramMap.put("search", "");
+                paramMap.put("search_type", "");
+                paramMap.put("type", new Boolean[]{true, true, true, true});
+                paramMap.put("follower", true);
+                paramMap.put("sort", "time");
+                ///////////////////////////////////////////
+                ////////// Backend Connection /////////////
+                // String result = HttpUtil.post(curUrl, paramMap);
+                // result (String) -->> result (json)
+                ///////////////////////////////////////////
+//                String result = "no item";
+//                if (result == NO_ITEM)
+//                {
+//                    alertNoItem();
+//                    return;
+//                }
+
+                // Construct temporary data
+                itemList.clear();
+                for (int i = 0; i < 5; i++) {
+                    String curUserName = "测试用户follow" + i;
+                    String curTitle = "测试标题follow" + i;
+                    String curContent = "follow测试内容测试内容测试内容测试内容测试内容测试内容测试内容测试" +
+                            "内容测试内容测试内容测试内容测试内容测试内容测试内容测试内容测试内容" + i + "\n";
+                    String curFollowCondition = Item.FOLLOW;
+                    Date d = new Date();
+                    System.out.println(d);
+                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                    String curTime = sdf.format(d);
+                    curContent += curTime;
+                    int curLikesCount = i * 100;
+                    int curCommentsCount = i * 10;
+                    int curType = Item.TEXT;
+                    Item curItem = new Item(i, curTitle, curContent, curUserName, curFollowCondition, i,
+                            curLikesCount, curCommentsCount, curType, false);
+                    itemList.add(curItem);
+                }
+                mAdapter = new PostListAdapter(getActivity(), itemList);
+                // Connect the adapter with the recycler view.
+                mRecyclerView.setAdapter(mAdapter);
+                // Give the recycler view a default layout manager.
+                mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
             }
         });
 
+        HashMap<String, Object> paramMap = new HashMap<>();
+        paramMap.put("user_id", userId);
+        paramMap.put("search", "");
+        paramMap.put("search_type", "");
+        paramMap.put("type", new Boolean[]{true, true, true, true});
+        paramMap.put("follower", false);
+        paramMap.put("sort", "time");
+        ///////////////////////////////////////////
+        ////////// Backend Connection /////////////
+        // String result = HttpUtil.post(curUrl, paramMap);
+        // result (String) -->> result (json)
+        ///////////////////////////////////////////
+//        String result = "no item";
+//        if (result == NO_ITEM)
+//        {
+//            alertNoItem();
+//            return rootView;
+//        }
         // Set recycler related variables
         // Put initial data into the word list.
-        for (int i = 0; i < 15; i++) {
-            String curUserName = "测试用户" + i;
-            String curTitle = "测试标题" + i;
-            String curContent = "测试内容测试内容测试内容测试内容测试内容测试内容测试内容测试" +
+        for (int i = 0; i < 10; i++) {
+            String curUserName = "测试用户all" + i;
+            String curTitle = "测试标题all" + i;
+            String curContent = "all测试内容测试内容测试内容测试内容测试内容测试内容测试内容测试" +
                     "内容测试内容测试内容测试内容测试内容测试内容测试内容测试内容测试内容" + i + "\n";
+            String curFollowCondition = Item.FOLLOW;
             Date d = new Date();
             System.out.println(d);
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -167,11 +281,9 @@ public class TabFragmentItem extends Fragment {
             int curLikesCount = i * 100;
             int curCommentsCount = i * 10;
             int curType = Item.TEXT;
-            Item curItem = new Item(i, curTitle, curContent, curUserName, i,
+            Item curItem = new Item(i, curTitle, curContent, curUserName, curFollowCondition, i,
                     curLikesCount, curCommentsCount, curType, false);
             itemList.add(curItem);
-
-//            mContentList.addLast("动态说了点什么呢？（我是内容） " + i + "\n" + curTime);
         }
 
         // Create recycler view.
@@ -184,37 +296,20 @@ public class TabFragmentItem extends Fragment {
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         // Inflate the layout for this fragment
 
-//        mAdapter.setOnItemClickListener(new PostListAdapter.OnItemClickListener() {
-//            @Override
-//            public void onItemClick(View v, PostListAdapter.ViewName viewName, int position) {
-//
-//                switch (v.getId()){
-//                    case R.id.like_button:
-//                        Item curItem = itemList.get(position);
-//                        if (curItem.getLiked()) {
-//                            curItem.unlike();
-//                            itemList.set(position, curItem);
-//                            ImageView curLikeButton = (ImageView) rootView.findViewById(R.id.like_button);
-//                            curLikeButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_unlike));
-//                        }
-//                        else {
-//                            curItem.like();
-//                            itemList.set(position, curItem);
-//                            ImageView curLikeButton = (ImageView) rootView.findViewById(R.id.like_button);
-//                            curLikeButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_like));
-//                        }
-//                        break;
-//                    case R.id.comment_button:
-//                        Toast.makeText(getActivity(),"你点击了删除按钮"+(position+1),Toast.LENGTH_SHORT).show();
-//                        break;
-//                    case R.id.share_button:
-//                        Toast.makeText(getActivity(),"你点击了删除按钮"+(position+1),Toast.LENGTH_SHORT).show();
-//                        break;
-//                    default:
-//                        Toast.makeText(getActivity(),"你点击了item"+(position+1),Toast.LENGTH_SHORT).show();
-//                        break;
-//                }
-//            }});
         return rootView;
+    }
+
+    public void alertNoItem()
+    {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        builder.setIcon(null);
+        builder.setTitle("提示");
+        builder.setMessage("没有所查动态！");
+        builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                Toast.makeText(getActivity(), "请重新查询...", Toast.LENGTH_SHORT).show();
+            }
+        }).show();
     }
 }

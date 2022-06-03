@@ -7,6 +7,8 @@
     android:orientation="vertical"
     tools:context=".LoginActivity"
     android:background="@color/login_bg">
+
+
     <EditText
         android:id="@+id/login_edit_account"
         android:layout_width="match_parent"
@@ -22,6 +24,8 @@
         android:textColorHint="@color/fancy_white">
     </EditText>
 
+
+
     <EditText
         android:id="@+id/login_edit_password"
         android:layout_width="match_parent"
@@ -32,7 +36,7 @@
         android:layout_marginTop="20dp"
         android:gravity="center_vertical"
         android:hint="请输入密码"
-        android:inputType="numberPassword"
+        android:inputType="textPassword"
         android:textColor="@color/fancy_white"
         android:textColorHint="@color/fancy_white"
 >
@@ -72,5 +76,4 @@
         android:layout_marginTop="10dp"
         android:onClick="toRegister"
         ></TextView>
-
 </LinearLayout>

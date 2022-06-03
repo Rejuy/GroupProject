@@ -45,7 +45,7 @@
         android:layout_marginRight="20dp"
         android:gravity="center_vertical"
         android:hint="请输入密码"
-        android:inputType="numberPassword"
+        android:inputType="textPassword"
         android:orientation="horizontal"
         android:textColor="@color/fancy_white"
         android:textColorHint="@color/fancy_white"></EditText>
@@ -59,7 +59,7 @@
         android:layout_marginRight="20dp"
         android:gravity="center_vertical"
         android:hint="请再次输入密码"
-        android:inputType="numberPassword"
+        android:inputType="textPassword"
         android:orientation="horizontal"
         android:textColor="@color/fancy_white"
         android:textColorHint="@color/fancy_white"></EditText>

@@ -1,24 +1,34 @@
 package com.example.groupproject;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.Activity;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.Toast;
+
+import java.util.HashMap;
 
 public class RegisterActivity extends AppCompatActivity {
     private static final String LOG_TAG = LoginActivity.class.getSimpleName();
     public static final int NORMAL_REQUEST = 1;
 
+    public static final String USER_NAME_EXISTS = "user_name already exists";
+    public static final String USER_EMAIL_EXISTS = "email already exists";
+    public static final String REGISTER_SUCCESS = "ok";
     public static final int PASSWORD_NOT_SAME = 0;
     public static final int INVALID_EMAIL = 1;
     public static final int INVALID_NAME = 2;
     public static final int INVALID_PASSWORD = 3;
-    public static final int REGISTER_SUCCESS = 4;
+//    public static final int REGISTER_SUCCESS = 4;
     public static final int SOMETHING_WENT_WRONG = -1;
+
+    public static final String url = Constant.backendUrl + Constant.registerUrl;
 
     private EditText accountCreateEditText;
     private EditText nameCreateEditText;
@@ -52,31 +62,82 @@ public class RegisterActivity extends AppCompatActivity {
         String rawPassword = passwordCreateEditText.getText().toString();
         String confirmedPassword = passwordConfirmEditText.getText().toString();
 
-        // Post information to backend
-        // TODO
-        int result = REGISTER_SUCCESS;
+        // Check password
         if (!rawPassword.equals(confirmedPassword))
         {
-            result = PASSWORD_NOT_SAME;
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setIcon(null);
+            builder.setTitle("提示");
+            builder.setMessage("两次密码输入不一致！");
+            builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    Toast.makeText(RegisterActivity.this, "请重新输入...", Toast.LENGTH_SHORT).show();
+                }
+            }).show();
+            return;
         }
+
+        HashMap<String, Object> paramMap = new HashMap<>();
+        paramMap.put("user_name", rawName);
+        paramMap.put("password", rawPassword);
+        paramMap.put("email", rawAccount);
+        ///////////////////////////////////////////
+        ////////// Backend Connection /////////////
+        // String result = HttpUtil.post(curUrl, paramMap);
+        // result (String) -->> result (json)
+        ///////////////////////////////////////////
+        String result = REGISTER_SUCCESS;
 
         // React to the result of backend
         if (result == REGISTER_SUCCESS)
         {
             // Success: jump to login activity
-            Intent intent = new Intent(this, LoginActivity.class);
-            startActivityForResult(intent, NORMAL_REQUEST);
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setIcon(null);
+            builder.setTitle("提示");
+            builder.setMessage("用户创建成功！");
+            builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    Toast.makeText(RegisterActivity.this, "您可以准备登陆", Toast.LENGTH_SHORT).show();
+                    Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
+                    startActivityForResult(intent, NORMAL_REQUEST);
+                }
+            }).show();
+
         }
-        else if (result == SOMETHING_WENT_WRONG)
+        else if (result == USER_NAME_EXISTS)
         {
-            // Something went wrong
-            // TODO
+            // User name exists
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setIcon(null);
+            builder.setTitle("提示");
+            builder.setMessage("用户名已存在！请更换用户名。");
+            builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    Toast.makeText(RegisterActivity.this, "请重新输入...", Toast.LENGTH_SHORT).show();
+                }
+            }).show();
+        }
+        else if (result == USER_EMAIL_EXISTS)
+        {
+            // User email exists
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setIcon(null);
+            builder.setTitle("提示");
+            builder.setMessage("邮箱已存在！请更换邮箱。");
+            builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    Toast.makeText(RegisterActivity.this, "请重新输入...", Toast.LENGTH_SHORT).show();
+                }
+            }).show();
         }
         else
         {
-            // Failure: notice the user to edit again
-            // TODO
-
+            // Other circumstances
         }
     }
 }
