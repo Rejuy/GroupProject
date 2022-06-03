@@ -14,20 +14,20 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.alibaba.fastjson.JSON;
 
 import java.util.ArrayList;
-import java.util.List;
 
-public class CaoGaoAdapter extends
-        RecyclerView.Adapter<CaoGaoAdapter.CaoGaoHolder> {
-    private final ArrayList<item_unfinished> itemList;
+public class CommentAdapter extends
+        RecyclerView.Adapter<CommentAdapter.CommentHolder> {
+    private final ArrayList<ItemComment> itemList;
     private final LayoutInflater mInflater;
 
-    class CaoGaoHolder extends RecyclerView.ViewHolder
+    class CommentHolder extends RecyclerView.ViewHolder
 //            implements View.OnClickListener {
     {
-        public final TextView titleItemView;
+        public final ImageView UserImageView;
+        public final TextView UsernameItemView;
         public final TextView contentItemView;
         public final TextView createTimeItemView;
-        final CaoGaoAdapter mAdapter;
+        final CommentAdapter mAdapter;
 
         /**
          * Creates a new custom view holder to hold the view to display in
@@ -37,11 +37,12 @@ public class CaoGaoAdapter extends
          * @param adapter The adapter that manages the the data and views
          *                for the RecyclerView.
          */
-        public CaoGaoHolder(View itemView, CaoGaoAdapter adapter) {
+        public CommentHolder(View itemView, CommentAdapter adapter) {
             super(itemView);
-            titleItemView = itemView.findViewById(R.id.cg_title);
-            contentItemView = itemView.findViewById(R.id.cg_content);
-            createTimeItemView = itemView.findViewById(R.id.creat_time);
+            UserImageView = itemView.findViewById(R.id.user_image);
+            UsernameItemView = itemView.findViewById(R.id.user_name);
+            contentItemView = itemView.findViewById(R.id.comment_content);
+            createTimeItemView = itemView.findViewById(R.id.comment_time);
 
 
             // On click
@@ -56,49 +57,47 @@ public class CaoGaoAdapter extends
 
     }
 
-    public CaoGaoAdapter(Context context, ArrayList<item_unfinished> _itemList) {
+    public CommentAdapter(Context context, ArrayList<ItemComment> _itemList) {
         mInflater = LayoutInflater.from(context);
         this.itemList = _itemList;
     }
     @NonNull
     @Override
-    public CaoGaoAdapter.CaoGaoHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public CommentAdapter.CommentHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View mItemView = mInflater.inflate(
-                R.layout.caogao_item, parent, false);
-        return new CaoGaoAdapter.CaoGaoHolder(mItemView, this);
+                R.layout.comment_item, parent, false);
+        return new CommentAdapter.CommentHolder(mItemView, this);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull CaoGaoAdapter.CaoGaoHolder holder, int position) {
-        System.out.println("yyyyyyy!!!!!!");
+    public void onBindViewHolder(@NonNull CommentAdapter.CommentHolder holder, int position) {
+        System.out.println("yeeeyyyyyy!!!!!!");
         Object objItem = itemList.get(position);
-        item_unfinished cur_item = (item_unfinished) objItem;
+        ItemComment cur_item = (ItemComment) objItem;
         System.out.println(JSON.toJSONString(cur_item));
-        if(!cur_item.getTitle().equals("unset")){
-            holder.titleItemView.setText(cur_item.getTitle());
+        if(cur_item.getUser_id()!=0){
+            System.out.println(cur_item.getUser_id());
         }else{
-            holder.titleItemView.setText("默认");
+            System.out.println(cur_item.getUser_id());
         }
-        if(!cur_item.getContent().equals("unset")){
+        if(!cur_item.getContent().equals("lyqtest")){
             holder.contentItemView.setText(cur_item.getContent());
         }else{
             holder.contentItemView.setText("默认");
         }
         holder.createTimeItemView.setText(cur_item.getCreate_time());
-        holder.titleItemView.setOnClickListener(new View.OnClickListener() {
+        holder.UserImageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-//                int curPosition = holder.getAdapterPosition();
-//                item_unfinished tmp = itemList.get(curPosition);
+                int curPosition = holder.getAdapterPosition();
+                Object objItem = itemList.get(position);
+                ItemComment tmp_item = (ItemComment) objItem;
+                System.out.print("image click");
                 Context curContext = mInflater.getContext();
-                Intent intent = new Intent(curContext, itemCreateActivity.class);
-                intent.putExtra("content",cur_item.getContent());
-                intent.putExtra("loc",cur_item.getLoc());
-                intent.putExtra("title",cur_item.getTitle());
-                intent.putExtra("type",cur_item.getType());
-                intent.putExtra("filename",cur_item.getFilename());
-                intent.putExtra("create_time",cur_item.getCreate_time());
-                intent.putExtra("code",0);
+                Intent intent = new Intent(curContext, SelfItemActivity.class);
+//                String searchContent = searchEditText.getText().toString();
+                intent.putExtra("userId", 111);
+                intent.putExtra("userName","lyq");
                 curContext.startActivity(intent);
             }
         });

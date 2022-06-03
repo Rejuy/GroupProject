@@ -1,42 +1,49 @@
 package com.example.groupproject;
 
 public class item_unfinished {
+    private int id = 0;
     private String title = "unset";
     private String content= "unset";
     private  int type = 0;//默认为纯文本
     private String loc= "unset";
     private String filename= "unset";
     private String create_time = "unset";
-    public void setTime(String str){this.create_time=str;}
+    public void setId(int i){id = i;}
+    public void setTime(String str){create_time=str;}
     public void setTitle(String str){
-        this.title=str;
+        title=str;
     }
     public void setContent(String str){
-        this.content=str;
+        content=str;
     }
-    public void setType(int type){
-        this.type=type;
+    public void setType(int puttype){
+        type=puttype;
     }
     public void setLoc(String str){
-        this.loc=str;
+        loc=str;
     }
     public void setFilename(String str){
-        this.filename=str;
+        filename=str;
     }
-    public String getCreate_time(){return this.create_time;}
+
+    public int getId() {
+        return id;
+    }
+
+    public String getCreate_time(){return create_time;}
     public String getTitle(){
-        return  this.title;
+        return  title;
     }
     public String getContent(){
-        return this.content;
+        return content;
     }
     public String getLoc(){
-        return this.loc;
+        return loc;
     }
     public int getType(){
-        return this.type;
+        return type;
     }
     public String getFilename(){
-        return this.filename;
+        return filename;
     }
 }
