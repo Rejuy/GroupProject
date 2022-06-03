@@ -72,7 +72,6 @@ public class itemCreateActivity extends AppCompatActivity {
     private File tmp_photo;
     private EditText title;
     private EditText content;
-    private int global_type = 0;
 
     private Uri imageUri;
     private Uri VideoUri;
@@ -102,30 +101,32 @@ public class itemCreateActivity extends AppCompatActivity {
         file_btn.setVisibility(View.VISIBLE);
         add_text = findViewById(R.id.add_text);
         add_text.setVisibility(View.VISIBLE);
-        readSDcard();
-        if(total_msg!=""){
-            HashMap mapType = JSON.parseObject(total_msg,HashMap.class);
-//            String tmp_str=mapType.get("save_list").toString();
-            System.out.println(mapType.get("save_list").toString());
-            JSONArray tmp_list = (JSONArray) mapType.get("save_list");
-            JSONObject tmp =  (JSONObject) tmp_list.get(0);
-            title = findViewById(R.id.title_input);
-            title.setText(tmp.get("title").toString());
-            content = findViewById(R.id.content_input);
-            content.setText(tmp.get("content").toString());
-            global_type= (int)tmp.get("type");
+        EditText title = findViewById(R.id.title_input);
+        EditText content = findViewById(R.id.content_input);
+        Intent intent = this.getIntent();
+        if(intent.getIntExtra("code",1)==1){
 
-            String tmp_file = tmp.get("filename").toString();
-            if(!tmp_file.equals("unset")){
-                tmp_filepath = tmp_file;
-                if(global_type ==1){
+            tmp_type = 0;
+        }else{
+
+            tmp_title = intent.getStringExtra("title");
+            title.setText(tmp_title);
+            tmp_content = intent.getStringExtra("content");
+            content.setText(tmp_content);
+            tmp_type = intent.getIntExtra("type",0);
+            tmp_loc = intent.getStringExtra("loc");
+            tmp_filepath =intent.getStringExtra("filename");
+            System.out.println(tmp_filepath);
+            if(!tmp_filepath.equals("unset")){
+                if(tmp_type ==1){
                     File file = new File(tmp_filepath);
                     if(file.exists()){
                         Bitmap bm = BitmapFactory.decodeFile(tmp_filepath);
+                        add_text.setVisibility(View.INVISIBLE);
                         file_btn.setImageBitmap(bm);
                     }
 
-                }else if(global_type ==3){
+                }else if(tmp_type ==3){
                     Bitmap bm = getVideoThumb(tmp_filepath);
 //                    file_btn.setVisibility(View.INVISIBLE);
                     add_text.setVisibility(View.INVISIBLE);
@@ -134,11 +135,9 @@ public class itemCreateActivity extends AppCompatActivity {
 
                 }
             }
-
-
         }
         Spinner type_spin = findViewById(R.id.item_types);
-        type_spin.setSelection(global_type);
+        type_spin.setSelection(tmp_type);
         type_spin.setOnItemSelectedListener(new MySelectedListener());
 
 //        mygeo_Thread my = new mygeo_Thread();
@@ -160,8 +159,7 @@ public class itemCreateActivity extends AppCompatActivity {
                 }
             }
         });
-        EditText title = findViewById(R.id.title_input);
-        EditText content = findViewById(R.id.content_input);
+
         Button send_btn = findViewById(R.id.send_button);
         send_btn.setOnClickListener(new View.OnClickListener() {
 
