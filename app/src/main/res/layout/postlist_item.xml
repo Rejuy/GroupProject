@@ -51,6 +51,18 @@
     <TextView
         android:id="@+id/post_content"
         style="@style/post_content"/>
+    <ImageView
+        android:id="@+id/item_image"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:maxHeight="100dp"
+        android:maxWidth="100dp"/>
+    <VideoView
+        android:id="@+id/item_video"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:maxHeight="100dp"
+        android:maxWidth="100dp"/>
 
     <View
         android:layout_width="match_parent"

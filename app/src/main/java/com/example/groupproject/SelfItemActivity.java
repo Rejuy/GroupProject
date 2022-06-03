@@ -1,11 +1,13 @@
 package com.example.groupproject;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -17,12 +19,19 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+
+import cn.hutool.http.HttpUtil;
 
 public class SelfItemActivity extends AppCompatActivity {
     public static final int NORMAL_REQUEST = 0;
@@ -32,6 +41,7 @@ public class SelfItemActivity extends AppCompatActivity {
     public static final String UNFOLLOW = "取消关注";
     public static final String BLOCK = "屏蔽";
     public static final String UNBLOCK = "取消屏蔽";
+    public static final String NO_ITEM = "no item";
 
     private final List<Item> itemList = new LinkedList<>();
     private RecyclerView mRecyclerView;
@@ -155,24 +165,43 @@ public class SelfItemActivity extends AppCompatActivity {
 
         // Set recycler related variables
         // Put initial data into the word list.
-        for (int i = 0; i < 15; i++) {
-            String curTitle = "测试标题balabala" + i;
-            String curContent = "balabala测试内容测试内容测试内容测试内容测试内容测试内容测试内容测试" +
-                    "内容测试内容测试内容测试内容测试内容测试内容测试内容测试内容测试内容" + i + "\n";
-            String curFollowCondition = Item.MYSELF;
-            Date d = new Date();
-            System.out.println(d);
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            String curTime = sdf.format(d);
-            curContent += curTime;
-            int curLikesCount = i * 100;
-            int curCommentsCount = i * 10;
-            int curType = Item.TEXT;
-            Item curItem = new Item(i, curTitle, curContent, userName, curFollowCondition, userId,
-                    curLikesCount, curCommentsCount, curType, false);
-            itemList.add(curItem);
+        ///////////////////////////////////////////
+        ////////// Backend Connection /////////////
+        JSONObject obj = new JSONObject(paramMap);
+        ///////////////////////////////////////////
+        ////////// Backend Connection /////////////
+        String obj_string = obj.toJSONString();
+        String result = HttpUtil.post(url, obj_string);
+        HashMap mapType = JSON.parseObject(result,HashMap.class);
+        String resu = (String) mapType.get("msg").toString();
 
-//            mContentList.addLast("动态说了点什么呢？（我是内容） " + i + "\n" + curTime);
+        // result (String) -->> result (json)
+        ///////////////////////////////////////////
+//                String result = "no item";
+        if (resu.equals(NO_ITEM) )
+        {
+            alertNoItem();
+            return;
+        }
+        JSONArray json_list = (JSONArray) mapType.get("data");
+        // Construct temporary data
+        itemList.clear();
+        for (int i = 0; i < json_list.size(); i++) {
+            JSONObject tmp =  (JSONObject) json_list.get(i);
+            String curUserName = tmp.get("username").toString();
+            String curTitle = tmp.get("title").toString();
+            String curContent = tmp.get("content").toString()+"\n";
+            String curFollowCondition = ((Boolean)tmp.get("is_followed")?Item.FOLLOW:Item.HAVE_NOT_FOLLOW);
+            String curTime = tmp.get("created_time").toString();
+            curContent += curTime;
+            int curLikesCount = (int)tmp.get("like_count");
+            int curCommentsCount = (int)tmp.get("comment_count");
+            int curType = (int)tmp.get("type");
+            String curFilename = tmp.get("file_name").toString();
+
+            Item curItem = new Item(i, curTitle, curContent, curUserName, curFollowCondition, i,
+                    curLikesCount, curCommentsCount, curType, false,curFilename);
+            itemList.add(curItem);
         }
 
         // Create recycler view.
@@ -199,5 +228,19 @@ public class SelfItemActivity extends AppCompatActivity {
         Intent intent = new Intent(this, IntroductionActivity.class);
         intent.putExtra("introduction", userIntroduction);
         startActivityForResult(intent, NORMAL_REQUEST);
+    }
+
+    public void alertNoItem()
+    {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setIcon(null);
+        builder.setTitle("提示");
+        builder.setMessage("没有所查动态！");
+        builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                Toast.makeText(SelfItemActivity.this, "请重新查询...", Toast.LENGTH_SHORT).show();
+            }
+        }).show();
     }
 }

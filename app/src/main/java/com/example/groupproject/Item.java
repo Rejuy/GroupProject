@@ -10,6 +10,7 @@ public class Item {
     private int likesCount;
     private int commentsCount;
     private Boolean liked;
+    private String fileName;
 
     public static final String FOLLOW = "已关注";
     public static final String HAVE_NOT_FOLLOW = "未关注";
@@ -17,10 +18,10 @@ public class Item {
     // TODO: user image
 
     private int type;
-    public static final int TEXT = 1;
-    public static final int IMAGE = 2;
-    public static final int AUDIO = 3;
-    public static final int VIDEO = 4;
+    public static final int TEXT = 0;
+    public static final int IMAGE = 1;
+    public static final int AUDIO = 2;
+    public static final int VIDEO = 3;
 
     public Item(int _itemId,
                 String _title,
@@ -31,7 +32,8 @@ public class Item {
                 int _likesCount,
                 int _commentsCount,
                 int _type,
-                Boolean _liked)
+                Boolean _liked,
+                String _filename)
     {
         itemId = _itemId;
         title = _title;
@@ -43,6 +45,7 @@ public class Item {
         commentsCount = _commentsCount;
         type = _type;
         liked = _liked;
+        fileName=_filename;
     }
 
     public int getItemId() { return itemId; }
@@ -76,6 +79,8 @@ public class Item {
     public int getUserId() { return userId; }
 
     public Boolean getLiked() { return liked; }
+
+    public String getFileName(){return fileName;}
 
     public void like() {
         likesCount += 1;

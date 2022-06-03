@@ -12,7 +12,12 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+
 import java.util.HashMap;
+
+import cn.hutool.http.HttpUtil;
 
 public class RegisterActivity extends AppCompatActivity {
     private static final String LOG_TAG = LoginActivity.class.getSimpleName();
@@ -82,15 +87,21 @@ public class RegisterActivity extends AppCompatActivity {
         paramMap.put("user_name", rawName);
         paramMap.put("password", rawPassword);
         paramMap.put("email", rawAccount);
+        JSONObject obj = new JSONObject(paramMap);
         ///////////////////////////////////////////
         ////////// Backend Connection /////////////
-        // String result = HttpUtil.post(curUrl, paramMap);
+        String obj_string = obj.toJSONString();
+        String result = HttpUtil.post(url, obj_string);
+        HashMap mapType = JSON.parseObject(result,HashMap.class);
+        System.out.println(mapType.get("msg").toString());
+        String res = (String) mapType.get("msg").toString();
+
         // result (String) -->> result (json)
         ///////////////////////////////////////////
-        String result = REGISTER_SUCCESS;
+//        String result = REGISTER_SUCCESS;
 
         // React to the result of backend
-        if (result == REGISTER_SUCCESS)
+        if (res.equals(REGISTER_SUCCESS))
         {
             // Success: jump to login activity
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -107,8 +118,9 @@ public class RegisterActivity extends AppCompatActivity {
             }).show();
 
         }
-        else if (result == USER_NAME_EXISTS)
+        else if (res.equals(USER_NAME_EXISTS))
         {
+            System.out.println("????????????");
             // User name exists
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
             builder.setIcon(null);
@@ -121,7 +133,7 @@ public class RegisterActivity extends AppCompatActivity {
                 }
             }).show();
         }
-        else if (result == USER_EMAIL_EXISTS)
+        else if (res.equals(USER_EMAIL_EXISTS))
         {
             // User email exists
             AlertDialog.Builder builder = new AlertDialog.Builder(this);

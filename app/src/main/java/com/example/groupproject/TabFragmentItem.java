@@ -19,11 +19,18 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+
+import cn.hutool.http.HttpUtil;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -54,6 +61,7 @@ public class TabFragmentItem extends Fragment {
     private Button followItemButton;
     private int state = 0;
     private TextView textViewState;
+    private FloatingActionButton fab;
 
     private final List<Item> itemList = new LinkedList<>();
     private RecyclerView mRecyclerView;
@@ -103,7 +111,15 @@ public class TabFragmentItem extends Fragment {
         TextView textViewUser = rootView.findViewById(R.id.test);
         String id_ = Integer.toString(userId);
         textViewUser.setText(id_);
-
+        fab = rootView.findViewById(R.id.fab);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getActivity(), itemCreateActivity.class);
+                intent.putExtra("userId", userId);
+                startActivity(intent);
+            }
+        });
         textViewState = rootView.findViewById(R.id.state);
 
         searchEditText = rootView.findViewById(R.id.index_edit_search);
@@ -144,7 +160,7 @@ public class TabFragmentItem extends Fragment {
                 followItemButton.setBackgroundColor(getResources().getColor(R.color.title_bg));
 
                 HashMap<String, Object> paramMap = new HashMap<>();
-                paramMap.put("user_id", userId);
+                paramMap.put("user_id", IndexActivity.user_id);
                 paramMap.put("search", "");
                 paramMap.put("search_type", "");
                 paramMap.put("type", new Boolean[]{true, true, true, true});
@@ -152,34 +168,40 @@ public class TabFragmentItem extends Fragment {
                 paramMap.put("sort", "time");
                 ///////////////////////////////////////////
                 ////////// Backend Connection /////////////
-                // String result = HttpUtil.post(curUrl, paramMap);
+                JSONObject obj = new JSONObject(paramMap);
+                ///////////////////////////////////////////
+                ////////// Backend Connection /////////////
+                String obj_string = obj.toJSONString();
+                String result = HttpUtil.post(url, obj_string);
+                HashMap mapType = JSON.parseObject(result,HashMap.class);
+                String resu = (String) mapType.get("msg").toString();
+
                 // result (String) -->> result (json)
                 ///////////////////////////////////////////
 //                String result = "no item";
-//                if (result == NO_ITEM)
-//                {
-//                    alertNoItem();
-//                    return;
-//                }
-
+                if (resu.equals(NO_ITEM) )
+                {
+                    alertNoItem();
+                    return;
+                }
+                JSONArray json_list = (JSONArray) mapType.get("data");
                 // Construct temporary data
                 itemList.clear();
-                for (int i = 0; i < 10; i++) {
-                    String curUserName = "测试用户all" + i;
-                    String curTitle = "测试标题all" + i;
-                    String curContent = "all测试内容测试内容测试内容测试内容测试内容测试内容测试内容测试" +
-                            "内容测试内容测试内容测试内容测试内容测试内容测试内容测试内容测试内容" + i + "\n";
-                    String curFollowCondition = Item.HAVE_NOT_FOLLOW;
-                    Date d = new Date();
-                    System.out.println(d);
-                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                    String curTime = sdf.format(d);
+                for (int i = 0; i < json_list.size(); i++) {
+                    JSONObject tmp =  (JSONObject) json_list.get(i);
+                    String curUserName = tmp.get("user_name").toString();
+                    String curTitle = tmp.get("title").toString();
+                    String curContent = tmp.get("content").toString()+"\n";
+                    String curFollowCondition = ((Boolean)tmp.get("is_followed")?Item.FOLLOW:Item.HAVE_NOT_FOLLOW);
+                    String curTime = tmp.get("created_time").toString();
                     curContent += curTime;
-                    int curLikesCount = i * 100;
-                    int curCommentsCount = i * 10;
-                    int curType = Item.TEXT;
+                    int curLikesCount = (int)tmp.get("like_count");
+                    int curCommentsCount = (int)tmp.get("comment_count");
+                    int curType = (int)tmp.get("type");
+                    String curFilename = tmp.get("file_name").toString();
+
                     Item curItem = new Item(i, curTitle, curContent, curUserName, curFollowCondition, i,
-                            curLikesCount, curCommentsCount, curType, false);
+                            curLikesCount, curCommentsCount, curType, false,curFilename);
                     itemList.add(curItem);
                 }
                 mAdapter = new PostListAdapter(getActivity(), itemList);
@@ -201,42 +223,47 @@ public class TabFragmentItem extends Fragment {
                 followItemButton.setEnabled(false);
 
                 HashMap<String, Object> paramMap = new HashMap<>();
-                paramMap.put("user_id", userId);
+                paramMap.put("user_id", IndexActivity.user_id);
                 paramMap.put("search", "");
                 paramMap.put("search_type", "");
                 paramMap.put("type", new Boolean[]{true, true, true, true});
                 paramMap.put("follower", true);
                 paramMap.put("sort", "time");
+
+                JSONObject obj = new JSONObject(paramMap);
                 ///////////////////////////////////////////
                 ////////// Backend Connection /////////////
-                // String result = HttpUtil.post(curUrl, paramMap);
+                String obj_string = obj.toJSONString();
+                String result = HttpUtil.post(url, obj_string);
+                HashMap mapType = JSON.parseObject(result,HashMap.class);
+                String resu = (String) mapType.get("msg").toString();
+
                 // result (String) -->> result (json)
                 ///////////////////////////////////////////
 //                String result = "no item";
-//                if (result == NO_ITEM)
-//                {
-//                    alertNoItem();
-//                    return;
-//                }
-
+                if (resu.equals(NO_ITEM) )
+                {
+                    alertNoItem();
+                    return;
+                }
+                JSONArray json_list = (JSONArray) mapType.get("data");
                 // Construct temporary data
                 itemList.clear();
-                for (int i = 0; i < 5; i++) {
-                    String curUserName = "测试用户follow" + i;
-                    String curTitle = "测试标题follow" + i;
-                    String curContent = "follow测试内容测试内容测试内容测试内容测试内容测试内容测试内容测试" +
-                            "内容测试内容测试内容测试内容测试内容测试内容测试内容测试内容测试内容" + i + "\n";
-                    String curFollowCondition = Item.FOLLOW;
-                    Date d = new Date();
-                    System.out.println(d);
-                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                    String curTime = sdf.format(d);
+                for (int i = 0; i < json_list.size(); i++) {
+                    JSONObject tmp =  (JSONObject) json_list.get(i);
+                    String curUserName = tmp.get("user_name").toString();
+                    String curTitle = tmp.get("title").toString();
+                    String curContent = tmp.get("content").toString()+"\n";
+                    String curFollowCondition = ((Boolean)tmp.get("is_followed")?Item.FOLLOW:Item.HAVE_NOT_FOLLOW);
+                    String curTime = tmp.get("created_time").toString();
                     curContent += curTime;
-                    int curLikesCount = i * 100;
-                    int curCommentsCount = i * 10;
-                    int curType = Item.TEXT;
+                    int curLikesCount = (int)tmp.get("like_count");
+                    int curCommentsCount = (int)tmp.get("comment_count");
+                    int curType = (int)tmp.get("type");
+                    String curFilename = tmp.get("file_name").toString();
+
                     Item curItem = new Item(i, curTitle, curContent, curUserName, curFollowCondition, i,
-                            curLikesCount, curCommentsCount, curType, false);
+                            curLikesCount, curCommentsCount, curType, false,curFilename);
                     itemList.add(curItem);
                 }
                 mAdapter = new PostListAdapter(getActivity(), itemList);
@@ -248,41 +275,49 @@ public class TabFragmentItem extends Fragment {
         });
 
         HashMap<String, Object> paramMap = new HashMap<>();
-        paramMap.put("user_id", userId);
+        paramMap.put("user_id", IndexActivity.user_id);
         paramMap.put("search", "");
         paramMap.put("search_type", "");
         paramMap.put("type", new Boolean[]{true, true, true, true});
         paramMap.put("follower", false);
         paramMap.put("sort", "time");
+
+        JSONObject obj = new JSONObject(paramMap);
         ///////////////////////////////////////////
         ////////// Backend Connection /////////////
-        // String result = HttpUtil.post(curUrl, paramMap);
+        String obj_string = obj.toJSONString();
+        String result = HttpUtil.post(url, obj_string);
+        HashMap mapType = JSON.parseObject(result,HashMap.class);
+        String resu = (String) mapType.get("msg").toString();
+
         // result (String) -->> result (json)
         ///////////////////////////////////////////
-//        String result = "no item";
-//        if (result == NO_ITEM)
-//        {
-//            alertNoItem();
-//            return rootView;
-//        }
-        // Set recycler related variables
-        // Put initial data into the word list.
-        for (int i = 0; i < 10; i++) {
-            String curUserName = "测试用户all" + i;
-            String curTitle = "测试标题all" + i;
-            String curContent = "all测试内容测试内容测试内容测试内容测试内容测试内容测试内容测试" +
-                    "内容测试内容测试内容测试内容测试内容测试内容测试内容测试内容测试内容" + i + "\n";
-            String curFollowCondition = Item.FOLLOW;
-            Date d = new Date();
-            System.out.println(d);
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            String curTime = sdf.format(d);
+//                String result = "no item";
+        if (resu.equals(NO_ITEM) )
+        {
+            alertNoItem();
+            return rootView;
+        }
+        JSONArray json_list = (JSONArray) mapType.get("data");
+        System.out.println("?????????????");
+        System.out.println(json_list);
+        // Construct temporary data
+        itemList.clear();
+        for (int i = 0; i < json_list.size(); i++) {
+            JSONObject tmp =  (JSONObject) json_list.get(i);
+            String curUserName = tmp.get("user_name").toString();
+            String curTitle = tmp.get("title").toString();
+            String curContent = tmp.get("content").toString()+"\n";
+            String curFollowCondition = ((Boolean)tmp.get("is_followed")?Item.FOLLOW:Item.HAVE_NOT_FOLLOW);
+            String curTime = tmp.get("created_time").toString();
             curContent += curTime;
-            int curLikesCount = i * 100;
-            int curCommentsCount = i * 10;
-            int curType = Item.TEXT;
+            int curLikesCount = (int)tmp.get("like_count");
+            int curCommentsCount = (int)tmp.get("comment_count");
+            int curType = (int)tmp.get("type");
+            String curFilename = tmp.get("file_name").toString();
+
             Item curItem = new Item(i, curTitle, curContent, curUserName, curFollowCondition, i,
-                    curLikesCount, curCommentsCount, curType, false);
+                    curLikesCount, curCommentsCount, curType, false,curFilename);
             itemList.add(curItem);
         }
 

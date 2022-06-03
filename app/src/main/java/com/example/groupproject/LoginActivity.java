@@ -6,15 +6,23 @@ import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.location.Geocoder;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.StrictMode;
 import android.util.Log;
 import android.view.View;
+import android.webkit.WebChromeClient;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.app.Dialog;
 import androidx.appcompat.app.AlertDialog;
+
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 
 import java.util.HashMap;
 
@@ -51,13 +59,28 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     public void toRegister(View view) {
+//        Uri uri = Uri.parse("http://59.66.137.34:8765/media/VID_20220516_134006_pKywsaS.mp4/");
+//        Intent ointent = new Intent();
+//        ointent.setAction(Intent.ACTION_VIEW);
+//
+////        Uri content_url = Uri.parse("https://www.baidu.com");
+//
+//        ointent.setDataAndType(uri,"video/mp4");
+//        startActivity(ointent);
+//        System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
         Log.d(LOG_TAG, "To register button clicked!");
         Intent intent = new Intent(this, RegisterActivity.class);
         startActivityForResult(intent, NORMAL_REQUEST);
     }
 
     public void login(View view) {
+//        WebView mWebView = (WebView) findViewById(R.id.web);
+//        mWebView.setWebChromeClient(new WebChromeClient());
+////        mWebView.loadUrl("http://59.66.137.34:8765/media/VID_20220516_134006_pKywsaS.mp4/");
+//        mWebView.loadData("<html><body><video><source src=\"http://59.66.137.34:8765/media/VID_20220516_134006_pKywsaS.mp4/\"/></video></body></html>","video/mp4","utf-8");
+//
         Log.d(LOG_TAG, "Login button clicked!");
+
 
         // Get user information
         String account = accountEditText.getText().toString();
@@ -65,15 +88,22 @@ public class LoginActivity extends AppCompatActivity {
         HashMap<String, Object> paramMap = new HashMap<>();
         paramMap.put("user_name", account);
         paramMap.put("password", password);
+        JSONObject obj = new JSONObject(paramMap);
         ///////////////////////////////////////////
         ////////// Backend Connection /////////////
-        // String result = HttpUtil.post(url, paramMap);
-        // result (String) -->> result (json)
+
+        String obj_string = obj.toJSONString();
+        String result = HttpUtil.post(url, obj_string);
+        HashMap mapType = JSON.parseObject(result,HashMap.class);
+        System.out.println(mapType.get("data").toString());
+        String res = (String) mapType.get("msg").toString();
+
+//        result (String) -->> result (json)
         ///////////////////////////////////////////
-        String result = "1";
+//        String result = "1";
 
         // React to the result of backend
-        if (result == USER_NOT_FOUND)
+        if (res.equals(USER_NOT_FOUND) )
         {
             // User not found
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -87,7 +117,7 @@ public class LoginActivity extends AppCompatActivity {
                 }
             }).show();
         }
-        else if (result == WRONG_PASSWORD)
+        else if (res.equals(WRONG_PASSWORD))
         {
             // Wrong password
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -105,7 +135,8 @@ public class LoginActivity extends AppCompatActivity {
         {
             // Success: jump to index activity
             Intent intent = new Intent(this, IndexActivity.class);
-            int userId = Integer.valueOf(result);
+            JSONObject user_id = (JSONObject)mapType.get("data");
+            int userId = (int)user_id.get("id");
             intent.putExtra("userId", userId);
             startActivityForResult(intent, NORMAL_REQUEST);
         }

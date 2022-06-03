@@ -1,10 +1,12 @@
 package com.example.groupproject;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.app.Activity;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -15,6 +17,11 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -22,16 +29,20 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
+import cn.hutool.http.HttpUtil;
+
 public class SearchResultActivity extends AppCompatActivity {
     public static final int NORMAL_REQUEST = 0;
 
     private EditText searchEditText;
     private ImageView gotoImageButton;
-
+    HashMap<String,String> cn_to_en_part = new HashMap<>();
     private Spinner typeSpinner;
     private Spinner sortSpinner;
     private Spinner rangeSpinner;
     private Spinner partSpinner;
+    public static final String url = Constant.backendUrl + Constant.getItemUrl;
+    public static final String NO_ITEM = "no item";
 
     String[] dataType = new String[]{"综合", "文字", "图片", "音频", "视频"};
     String[] dataSort = new String[]{"默认", "点赞", "评论", "时间"};
@@ -54,6 +65,10 @@ public class SearchResultActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search_result);
+
+        cn_to_en_part.put("标题","title");
+        cn_to_en_part.put("内容","content");
+        cn_to_en_part.put("用户","user");
 
         ImageView back_image_button = (ImageView)findViewById(R.id.back_button);
         back_image_button.setOnClickListener(this::backToIndex);
@@ -141,27 +156,49 @@ public class SearchResultActivity extends AppCompatActivity {
 
 
 
-        // Set recycler related variables
-        // Put initial data into the word list.
-        for (int i = 0; i < 15; i++) {
-            String curUserName = "测试用户" + i;
-            String curTitle = "测试标题" + i;
-            String curContent = "测试内容测试内容测试内容测试内容测试内容测试内容测试内容测试" +
-                    "内容测试内容测试内容测试内容测试内容测试内容测试内容测试内容测试内容" + i + "\n";
-            String curFollowCondition = Item.FOLLOW;
-            Date d = new Date();
-            System.out.println(d);
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            String curTime = sdf.format(d);
-            curContent += curTime;
-            int curLikesCount = i * 100;
-            int curCommentsCount = i * 10;
-            int curType = Item.TEXT;
-            Item curItem = new Item(i, curTitle, curContent, curUserName, curFollowCondition, i,
-                    curLikesCount, curCommentsCount, curType, false);
-            itemList.add(curItem);
+        HashMap<String, Object> paramMap = new HashMap<>();
+        paramMap.put("user_id", IndexActivity.user_id);
+        paramMap.put("search", "");
+        paramMap.put("search_type", "");
+        paramMap.put("type", new Boolean[]{true, true, true, true});
+        paramMap.put("follower", false);
+        paramMap.put("sort", "time");
 
-//            mContentList.addLast("动态说了点什么呢？（我是内容） " + i + "\n" + curTime);
+        JSONObject obj = new JSONObject(paramMap);
+        ///////////////////////////////////////////
+        ////////// Backend Connection /////////////
+        String obj_string = obj.toJSONString();
+        String result = HttpUtil.post(url, obj_string);
+        HashMap mapType = JSON.parseObject(result,HashMap.class);
+        String resu = (String) mapType.get("msg").toString();
+
+        // result (String) -->> result (json)
+        ///////////////////////////////////////////
+//                String result = "no item";
+        if (resu.equals(NO_ITEM) )
+        {
+            alertNoItem();
+            return;
+        }
+        JSONArray json_list = (JSONArray) mapType.get("data");
+        // Construct temporary data
+        itemList.clear();
+        for (int i = 0; i < json_list.size(); i++) {
+            JSONObject tmp =  (JSONObject) json_list.get(i);
+            String curUserName = tmp.get("user_name").toString();
+            String curTitle = tmp.get("title").toString();
+            String curContent = tmp.get("content").toString()+"\n";
+            String curFollowCondition = ((Boolean)tmp.get("is_followed")?Item.FOLLOW:Item.HAVE_NOT_FOLLOW);
+            String curTime = tmp.get("created_time").toString();
+            curContent += curTime;
+            int curLikesCount = (int)tmp.get("like_count");
+            int curCommentsCount = (int)tmp.get("comment_count");
+            int curType = (int)tmp.get("type");
+            String curFilename = tmp.get("file_name").toString();
+
+            Item curItem = new Item(i, curTitle, curContent, curUserName, curFollowCondition, i,
+                    curLikesCount, curCommentsCount, curType, false,curFilename);
+            itemList.add(curItem);
         }
 
         // Create recycler view.
@@ -202,8 +239,13 @@ public class SearchResultActivity extends AppCompatActivity {
                                 + "==========");
 
         Boolean[] types = new Boolean[]{false, false, false, false};
-        if (type.equals("全部"))
-            types[0] = types[1] = types[2] = types[3] = true;
+        if (type.equals("综合")) {
+            System.out.println("!!!!!!!!!!!!!!");
+            types[0] = true;
+            types[1] = true;
+            types[2] = true;
+            types[3] = true;
+        }
         else if (type.equals("文字"))
             types[0] = true;
         else if (type.equals("图片"))
@@ -228,11 +270,11 @@ public class SearchResultActivity extends AppCompatActivity {
         HashMap<String, Object> paramMap = new HashMap<>();
         paramMap.put("user_id", userId);
         paramMap.put("search", searchWords);
-        paramMap.put("search_type", part);
+        paramMap.put("search_type", cn_to_en_part.get(part));
 
 
 
-        paramMap.put("type", type);
+        paramMap.put("type", types);
         paramMap.put("follower", follow);
         paramMap.put("sort", sortInfo);
         ///////////////////////////////////////////
@@ -240,26 +282,41 @@ public class SearchResultActivity extends AppCompatActivity {
         // String result = HttpUtil.post(curUrl, paramMap);
         // result (String) -->> result (json)
         ///////////////////////////////////////////
-        itemList.clear();
-        for (int i = 0; i < 15; i++) {
-            String curUserName = "测试用户asdf" + i;
-            String curTitle = "测试标题asdf" + i;
-            String curContent = "asdf测试内容测试内容测试内容测试内容测试内容测试内容测试内容测试" +
-                    "内容测试内容测试内容测试内容测试内容测试内容测试内容测试内容测试内容" + i + "\n";
-            String curFollowCondition = Item.FOLLOW;
-            Date d = new Date();
-            System.out.println(d);
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            String curTime = sdf.format(d);
-            curContent += curTime;
-            int curLikesCount = i * 100;
-            int curCommentsCount = i * 10;
-            int curType = Item.TEXT;
-            Item curItem = new Item(i, curTitle, curContent, curUserName, curFollowCondition, i,
-                    curLikesCount, curCommentsCount, curType, false);
-            itemList.add(curItem);
+        JSONObject obj = new JSONObject(paramMap);
+        ///////////////////////////////////////////
+        ////////// Backend Connection /////////////
+        String obj_string = obj.toJSONString();
+        String result = HttpUtil.post(url, obj_string);
+        HashMap mapType = JSON.parseObject(result,HashMap.class);
+        String resu = (String) mapType.get("msg").toString();
 
-//            mContentList.addLast("动态说了点什么呢？（我是内容） " + i + "\n" + curTime);
+        // result (String) -->> result (json)
+        ///////////////////////////////////////////
+//                String result = "no item";
+        if (resu.equals(NO_ITEM) )
+        {
+            alertNoItem();
+            return;
+        }
+        JSONArray json_list = (JSONArray) mapType.get("data");
+        // Construct temporary data
+        itemList.clear();
+        for (int i = 0; i < json_list.size(); i++) {
+            JSONObject tmp =  (JSONObject) json_list.get(i);
+            String curUserName = tmp.get("user_name").toString();
+            String curTitle = tmp.get("title").toString();
+            String curContent = tmp.get("content").toString()+"\n";
+            String curFollowCondition = ((Boolean)tmp.get("is_followed")?Item.FOLLOW:Item.HAVE_NOT_FOLLOW);
+            String curTime = tmp.get("created_time").toString();
+            curContent += curTime;
+            int curLikesCount = (int)tmp.get("like_count");
+            int curCommentsCount = (int)tmp.get("comment_count");
+            int curType = (int)tmp.get("type");
+            String curFilename = tmp.get("file_name").toString();
+
+            Item curItem = new Item(i, curTitle, curContent, curUserName, curFollowCondition, i,
+                    curLikesCount, curCommentsCount, curType, false,curFilename);
+            itemList.add(curItem);
         }
         // Create an adapter and supply the data to be displayed.
         mAdapter = new PostListAdapter(this, itemList);
@@ -268,4 +325,20 @@ public class SearchResultActivity extends AppCompatActivity {
         // Give the recycler view a default layout manager.
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
     }
+
+    public void alertNoItem()
+    {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        Activity that = this;
+        builder.setIcon(null);
+        builder.setTitle("提示");
+        builder.setMessage("没有所查动态！");
+        builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                Toast.makeText(that, "请重新查询...", Toast.LENGTH_SHORT).show();
+            }
+        }).show();
+    }
 }
+

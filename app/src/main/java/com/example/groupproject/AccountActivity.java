@@ -9,12 +9,19 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+
 import java.util.HashMap;
+
+import cn.hutool.http.HttpUtil;
 
 public class AccountActivity extends AppCompatActivity {
     private String name = "这里是用户名";;
     private String email = "11111@aks.com";
     private String password = "123456aaa";
+    private String url = Constant.backendUrl+Constant.updateUserUrl;
+    private String user_url = Constant.backendUrl+Constant.getUserUrl;
 
     private TextView curName;
     private TextView curEmail;
@@ -36,6 +43,27 @@ public class AccountActivity extends AppCompatActivity {
         Intent intent = getIntent();
         int userId = intent.getIntExtra("userId", 1);
 
+        HashMap<String, Object> paramMap = new HashMap<>();
+        paramMap.put("user_id",IndexActivity.user_id);
+        ///////////////////////////////////////////
+        ////////// Backend Connection /////////////
+        // String result = HttpUtil.post(url, paramMap);
+        // result (String) -->> result (json)
+        ///////////////////////////////////////////
+        JSONObject obj = new JSONObject(paramMap);
+        ///////////////////////////////////////////
+        ////////// Backend Connection /////////////
+        String obj_string = obj.toJSONString();
+        String result = HttpUtil.post(user_url, obj_string);
+        HashMap mapType = JSON.parseObject(result,HashMap.class);
+        String resu = (String) mapType.get("msg").toString();
+        if(resu.equals("ok")){
+            JSONObject user = (JSONObject)mapType.get("data");
+            name = (String) user.get("user_name");
+            email = (String) user.get("email");
+            password = (String) user.get("password");
+        }
+
         // TODO: Get user information to display
         confirmName = findViewById(R.id.confirm_name);
         editNewName = findViewById(R.id.edit_name);
@@ -49,14 +77,23 @@ public class AccountActivity extends AppCompatActivity {
                 name = editNewName.getText().toString();
                 // TODO: Connect backend
                 HashMap<String, Object> paramMap = new HashMap<>();
-//                paramMap.put("user_name", account);
-//                paramMap.put("password", password);
+                paramMap.put("user_id",IndexActivity.user_id);
+                paramMap.put("user_image","");
+                paramMap.put("introduction","");
+                paramMap.put("user_name", name);
+                paramMap.put("password", "");
+                paramMap.put("email","");
                 ///////////////////////////////////////////
                 ////////// Backend Connection /////////////
                 // String result = HttpUtil.post(url, paramMap);
                 // result (String) -->> result (json)
                 ///////////////////////////////////////////
-                curName.setText("当前用户名：" + name);
+                String result = HttpUtil.post(url, paramMap);
+                HashMap mapType = JSON.parseObject(result,HashMap.class);
+                String res = (String) mapType.get("msg").toString();
+                if(res.equals("ok")){
+                    curName.setText("当前用户名：" + name);
+                }
 //                intent.putExtra("searchContent", searchContent);
 //                startActivityForResult(intent, TEXT_REQUEST);
 
@@ -75,6 +112,28 @@ public class AccountActivity extends AppCompatActivity {
                 email = editNewEmail.getText().toString();
                 // TODO: Connect backend
                 HashMap<String, Object> paramMap = new HashMap<>();
+                paramMap.put("user_id",IndexActivity.user_id);
+                paramMap.put("user_image","");
+                paramMap.put("introduction","");
+                paramMap.put("user_name", "");
+                paramMap.put("password", "");
+                paramMap.put("email",email);
+                ///////////////////////////////////////////
+                ////////// Backend Connection /////////////
+                // String result = HttpUtil.post(url, paramMap);
+                // result (String) -->> result (json)
+                ///////////////////////////////////////////
+                JSONObject obj = new JSONObject(paramMap);
+                ///////////////////////////////////////////
+                ////////// Backend Connection /////////////
+                String obj_string = obj.toJSONString();
+                String result = HttpUtil.post(url, paramMap);
+                HashMap mapType = JSON.parseObject(result,HashMap.class);
+                String res = (String) mapType.get("msg").toString();
+                if(res.equals("ok")){
+                    curEmail.setText("当前邮箱：" + email);
+                }
+
 //                paramMap.put("user_name", account);
 //                paramMap.put("password", password);
                 ///////////////////////////////////////////
@@ -82,7 +141,6 @@ public class AccountActivity extends AppCompatActivity {
                 // String result = HttpUtil.post(url, paramMap);
                 // result (String) -->> result (json)
                 ///////////////////////////////////////////
-                curEmail.setText("当前邮箱：" + email);
 //                intent.putExtra("searchContent", searchContent);
 //                startActivityForResult(intent, TEXT_REQUEST);
             }
@@ -99,7 +157,6 @@ public class AccountActivity extends AppCompatActivity {
 //                Intent intent = new Intent(getActivity(), SearchResultActivity.class);
                 password = editNewPassword.getText().toString();
                 // TODO: Connect backend
-                HashMap<String, Object> paramMap = new HashMap<>();
 //                paramMap.put("user_name", account);
 //                paramMap.put("password", password);
                 ///////////////////////////////////////////
@@ -107,7 +164,29 @@ public class AccountActivity extends AppCompatActivity {
                 // String result = HttpUtil.post(url, paramMap);
                 // result (String) -->> result (json)
                 ///////////////////////////////////////////
-                curPassword.setText("当前密码：" + password);
+
+                HashMap<String, Object> paramMap = new HashMap<>();
+                paramMap.put("user_id",IndexActivity.user_id);
+                paramMap.put("user_image","");
+                paramMap.put("introduction","");
+                paramMap.put("user_name", "");
+                paramMap.put("password",password);
+                paramMap.put("email","");
+                ///////////////////////////////////////////
+                ////////// Backend Connection /////////////
+                // String result = HttpUtil.post(url, paramMap);
+                // result (String) -->> result (json)
+                ///////////////////////////////////////////
+                JSONObject obj = new JSONObject(paramMap);
+                ///////////////////////////////////////////
+                ////////// Backend Connection /////////////
+                String obj_string = obj.toJSONString();
+                String result = HttpUtil.post(url, obj_string);
+                HashMap mapType = JSON.parseObject(result,HashMap.class);
+                String res = (String) mapType.get("msg").toString();
+                if(res.equals("ok")){
+                    curPassword.setText("当前密码：" + password);
+                }
 //                intent.putExtra("searchContent", searchContent);
 //                startActivityForResult(intent, TEXT_REQUEST);
             }

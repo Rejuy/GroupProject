@@ -79,7 +79,9 @@ public class TabFragmentSelfCenter extends Fragment {
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_tab_self_center, container, false);
         Intent intent = getActivity().getIntent();
-        userId = intent.getIntExtra("userId", 1);
+        userId = IndexActivity.user_id;
+        System.out.println("?????????????");
+        System.out.println(userId);
         // Inflate the layout for this fragment
         accountButton = (TextView) rootView.findViewById(R.id.account_button);
         accountButton.setOnClickListener(new View.OnClickListener() {
@@ -92,7 +94,24 @@ public class TabFragmentSelfCenter extends Fragment {
                 startActivityForResult(intent, NORMAL_REQUEST);
             }
         });
-
+        draftButton = (TextView) rootView.findViewById(R.id.draft_button);
+        draftButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getActivity(), CaoGaoList.class);
+                intent.putExtra("userId", userId);
+                startActivity(intent);
+            }
+        });
+        noticeButton = (TextView) rootView.findViewById(R.id.notice_button);
+        noticeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getActivity(), CaoGaoList.class);
+                intent.putExtra("userId", userId);
+                startActivity(intent);
+            }
+        });
         followButton = (TextView) rootView.findViewById(R.id.follow_button);
         followButton.setOnClickListener(new View.OnClickListener() {
             @Override

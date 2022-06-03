@@ -72,6 +72,7 @@ public class itemCreateActivity extends AppCompatActivity {
     private File tmp_photo;
     private EditText title;
     private EditText content;
+    private String send_url = Constant.backendUrl+Constant.itemSendUrl;
 
     private Uri imageUri;
     private Uri VideoUri;
@@ -81,7 +82,7 @@ public class itemCreateActivity extends AppCompatActivity {
     String tmp_content = "unset";
     int tmp_type = 0;//默认为纯文本
     String tmp_loc = "unset";
-    String tmp_filepath = "unset";
+    String tmp_filepath = "";
     ArrayList<item_unfinished> item_list = new ArrayList<>();
    ImageView file_btn;
     Button save_btn;
@@ -105,7 +106,6 @@ public class itemCreateActivity extends AppCompatActivity {
         EditText content = findViewById(R.id.content_input);
         Intent intent = this.getIntent();
         if(intent.getIntExtra("code",1)==1){
-
             tmp_type = 0;
         }else{
 
@@ -165,6 +165,7 @@ public class itemCreateActivity extends AppCompatActivity {
 
             @Override
             public void onClick(View v) {
+                HashMap<String, Object> paramMap = new HashMap<>();
                 if(title.length()==0){
                     Toast.makeText(that,"标题不能为空",Toast.LENGTH_SHORT).show();
                 }else {
@@ -179,18 +180,19 @@ public class itemCreateActivity extends AppCompatActivity {
                     if(tmp_filepath.length()==0){
                         Toast.makeText(that,"上传文件不能为空",Toast.LENGTH_SHORT).show();
                     }
+                    paramMap.put("file", FileUtil.file(tmp_filepath));
+                }else{
+                    paramMap.put("file", "");
                 }
                 if(tmp_loc.length()==0){
 
                 }
-                HashMap<String, Object> paramMap = new HashMap<>();
-                paramMap.put("user_id",2);
+                paramMap.put("user_id",IndexActivity.user_id);
                 paramMap.put("title",tmp_title);
                 paramMap.put("content",tmp_content);
                 paramMap.put("type",tmp_type);
                 paramMap.put("location",tmp_loc);
-                paramMap.put("file", FileUtil.file(tmp_filepath));
-                String result1= HttpUtil.post("http://183.172.179.184:8765/item/send/", paramMap);
+                String result1= HttpUtil.post(send_url, paramMap);
                 System.out.println(result1);
             }
         });

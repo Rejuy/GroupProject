@@ -7,19 +7,29 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.MediaController;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.VideoView;
 
 import androidx.recyclerview.widget.RecyclerView;
 
 import org.w3c.dom.Text;
 
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -54,6 +64,8 @@ public class PostListAdapter extends
         public final ImageView commentButton;
         public final ImageView shareButton;
         public final ImageView userImage;
+        public final ImageView itemImage;
+        public final VideoView itemVideo;
         final PostListAdapter mAdapter;
 
         /**
@@ -76,6 +88,8 @@ public class PostListAdapter extends
             commentButton = itemView.findViewById(R.id.comment_button);
             shareButton = itemView.findViewById(R.id.share_button);
             userImage = itemView.findViewById(R.id.user_image);
+            itemImage = itemView.findViewById(R.id.item_image);
+            itemVideo = itemView.findViewById(R.id.item_video);
 
             // On click
 
@@ -159,7 +173,61 @@ public class PostListAdapter extends
         holder.commentCountItemView.setText(String.valueOf(curItem.getCommentsCount()));
         holder.likesCountItemView.setText(String.valueOf(curItem.getLikesCount()));
         holder.followCondition.setText(curItem.getFollowCondition());
+        URL url = null;
+        if(curItem.getType() == Item.IMAGE){
+            try {
+                url = new URL(Constant.backendUrl+"/media/"+curItem.getFileName());
+                System.out.println(curItem.getFileName());
+                Bitmap bitmap = requestImg(url);
+                holder.itemImage.setImageBitmap(bitmap);
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            }
+        }else if(curItem.getType()==Item.VIDEO){
 
+            try {
+                url = new URL(Constant.backendUrl+"/media/"+curItem.getFileName());
+//                System.out.println(url);
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            }
+
+
+            holder.itemVideo.setMediaController(new MediaController(holder.itemView.getContext()));
+//            System.out.println(url.toString());
+            Uri ano_uri = Uri.parse(url.toString());
+            System.out.println(ano_uri);
+            holder.itemVideo.setVideoURI(ano_uri);
+            holder.itemVideo.start();
+//            holder.itemVideo.requestFocus();
+        }
+        holder.contentItemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                int curPosition = holder.getAdapterPosition();
+                Item curItem = itemList.get(curPosition);
+                int item_id = curItem.getItemId();
+                To_detail(item_id);
+            }
+        });
+        holder.titleItemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                int curPosition = holder.getAdapterPosition();
+                Item curItem = itemList.get(curPosition);
+                int item_id = curItem.getItemId();
+                To_detail(item_id);
+            }
+        });
+        holder.commentButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                int curPosition = holder.getAdapterPosition();
+                Item curItem = itemList.get(curPosition);
+                int item_id = curItem.getItemId();
+                To_detail(item_id);
+            }
+        });
         holder.likeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -254,6 +322,25 @@ public class PostListAdapter extends
     @Override
     public int getItemCount() {
         return itemList.size();
+    }
+
+    public void To_detail(int item_id){
+        Context curContext = mInflater.getContext();
+        Intent intent = new Intent(curContext, DetailedItemActivity.class);
+//                String searchContent = searchEditText.getText().toString();
+        intent.putExtra("item_id", item_id);
+        curContext.startActivity(intent);
+    }
+    private Bitmap requestImg(final URL imgUrl)
+    {
+        Bitmap bitmap = null;
+        try {
+            bitmap = BitmapFactory.decodeStream(imgUrl.openStream());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return bitmap;
+
     }
 
 
