@@ -189,6 +189,8 @@ public class TabFragmentItem extends Fragment {
                 itemList.clear();
                 for (int i = 0; i < json_list.size(); i++) {
                     JSONObject tmp =  (JSONObject) json_list.get(i);
+                    int curUserId = (int)tmp.get("user_id");
+                    int curItemId = (int)tmp.get("item_id");
                     String curUserName = tmp.get("user_name").toString();
                     String curTitle = tmp.get("title").toString();
                     String curContent = tmp.get("content").toString()+"\n";
@@ -199,9 +201,13 @@ public class TabFragmentItem extends Fragment {
                     int curCommentsCount = (int)tmp.get("comment_count");
                     int curType = (int)tmp.get("type");
                     String curFilename = tmp.get("file_name").toString();
+                    String fakeimage_path = "";
+                    if(curType == 3){
+                        fakeimage_path = tmp.get("fake_image").toString();
+                    }
 
-                    Item curItem = new Item(i, curTitle, curContent, curUserName, curFollowCondition, i,
-                            curLikesCount, curCommentsCount, curType, false,curFilename);
+                    Item curItem = new Item(curItemId, curTitle, curContent, curUserName, curFollowCondition, curUserId,
+                            curLikesCount, curCommentsCount, curType, false,curFilename,fakeimage_path);
                     itemList.add(curItem);
                 }
                 mAdapter = new PostListAdapter(getActivity(), itemList);
@@ -251,6 +257,8 @@ public class TabFragmentItem extends Fragment {
                 itemList.clear();
                 for (int i = 0; i < json_list.size(); i++) {
                     JSONObject tmp =  (JSONObject) json_list.get(i);
+                    int curUserId = (int)tmp.get("user_id");
+                    int curItemId = (int)tmp.get("item_id");
                     String curUserName = tmp.get("user_name").toString();
                     String curTitle = tmp.get("title").toString();
                     String curContent = tmp.get("content").toString()+"\n";
@@ -261,9 +269,13 @@ public class TabFragmentItem extends Fragment {
                     int curCommentsCount = (int)tmp.get("comment_count");
                     int curType = (int)tmp.get("type");
                     String curFilename = tmp.get("file_name").toString();
+                    String fakeimage_path = "";
+                    if(curType == 3){
+                        fakeimage_path = tmp.get("fake_image").toString();
+                    }
 
-                    Item curItem = new Item(i, curTitle, curContent, curUserName, curFollowCondition, i,
-                            curLikesCount, curCommentsCount, curType, false,curFilename);
+                    Item curItem = new Item(curItemId, curTitle, curContent, curUserName, curFollowCondition, curUserId,
+                            curLikesCount, curCommentsCount, curType, false,curFilename,fakeimage_path);
                     itemList.add(curItem);
                 }
                 mAdapter = new PostListAdapter(getActivity(), itemList);
@@ -289,7 +301,7 @@ public class TabFragmentItem extends Fragment {
         String result = HttpUtil.post(url, obj_string);
         HashMap mapType = JSON.parseObject(result,HashMap.class);
         String resu = (String) mapType.get("msg").toString();
-
+        System.out.println(resu);
         // result (String) -->> result (json)
         ///////////////////////////////////////////
 //                String result = "no item";
@@ -299,12 +311,16 @@ public class TabFragmentItem extends Fragment {
             return rootView;
         }
         JSONArray json_list = (JSONArray) mapType.get("data");
-        System.out.println("?????????????");
+
         System.out.println(json_list);
         // Construct temporary data
         itemList.clear();
         for (int i = 0; i < json_list.size(); i++) {
             JSONObject tmp =  (JSONObject) json_list.get(i);
+            int curUserId = (int)tmp.get("user_id");
+            int curItemId = (int)tmp.get("item_id");
+            System.out.println("item_list");
+            System.out.println(curUserId);
             String curUserName = tmp.get("user_name").toString();
             String curTitle = tmp.get("title").toString();
             String curContent = tmp.get("content").toString()+"\n";
@@ -315,9 +331,13 @@ public class TabFragmentItem extends Fragment {
             int curCommentsCount = (int)tmp.get("comment_count");
             int curType = (int)tmp.get("type");
             String curFilename = tmp.get("file_name").toString();
+            String fakeimage_path = "";
+            if(curType == 3){
+                fakeimage_path = tmp.get("fake_image").toString();
+            }
 
-            Item curItem = new Item(i, curTitle, curContent, curUserName, curFollowCondition, i,
-                    curLikesCount, curCommentsCount, curType, false,curFilename);
+            Item curItem = new Item(curItemId, curTitle, curContent, curUserName, curFollowCondition, curUserId,
+                    curLikesCount, curCommentsCount, curType, false,curFilename,fakeimage_path);
             itemList.add(curItem);
         }
 

@@ -107,7 +107,7 @@ public class TabFragmentSelfCenter extends Fragment {
         noticeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(getActivity(), CaoGaoList.class);
+                Intent intent = new Intent(getActivity(), NoticeActivity.class);
                 intent.putExtra("userId", userId);
                 startActivity(intent);
             }

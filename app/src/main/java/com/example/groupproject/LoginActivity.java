@@ -91,7 +91,7 @@ public class LoginActivity extends AppCompatActivity {
         JSONObject obj = new JSONObject(paramMap);
         ///////////////////////////////////////////
         ////////// Backend Connection /////////////
-
+//        System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
         String obj_string = obj.toJSONString();
         String result = HttpUtil.post(url, obj_string);
         HashMap mapType = JSON.parseObject(result,HashMap.class);
@@ -138,6 +138,7 @@ public class LoginActivity extends AppCompatActivity {
             JSONObject user_id = (JSONObject)mapType.get("data");
             int userId = (int)user_id.get("id");
             intent.putExtra("userId", userId);
+            Constant.userId = userId;
             startActivityForResult(intent, NORMAL_REQUEST);
         }
     }

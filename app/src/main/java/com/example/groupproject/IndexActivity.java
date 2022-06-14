@@ -18,7 +18,8 @@ public class IndexActivity extends AppCompatActivity {
         setContentView(R.layout.activity_index);
 
         Intent intent = getIntent();
-        user_id = intent.getIntExtra("userId", -1);
+//        user_id = intent.getIntExtra("userId", -1);
+        user_id = Constant.userId;
         System.out.println("Index?????????????");
         System.out.println(user_id);
 

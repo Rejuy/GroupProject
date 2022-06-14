@@ -10,6 +10,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,6 +24,9 @@ import android.widget.VideoView;
 
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+
 import org.w3c.dom.Text;
 
 import java.io.IOException;
@@ -33,6 +37,8 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+
+import cn.hutool.http.HttpUtil;
 
 /**
  * Shows how to implement a simple Adapter for a RecyclerView.
@@ -65,7 +71,6 @@ public class PostListAdapter extends
         public final ImageView shareButton;
         public final ImageView userImage;
         public final ImageView itemImage;
-        public final VideoView itemVideo;
         final PostListAdapter mAdapter;
 
         /**
@@ -89,7 +94,7 @@ public class PostListAdapter extends
             shareButton = itemView.findViewById(R.id.share_button);
             userImage = itemView.findViewById(R.id.user_image);
             itemImage = itemView.findViewById(R.id.item_image);
-            itemVideo = itemView.findViewById(R.id.item_video);
+
 
             // On click
 
@@ -185,21 +190,23 @@ public class PostListAdapter extends
             }
         }else if(curItem.getType()==Item.VIDEO){
 
-            try {
-                url = new URL(Constant.backendUrl+"/media/"+curItem.getFileName());
-//                System.out.println(url);
-            } catch (MalformedURLException e) {
-                e.printStackTrace();
-            }
 
 
-            holder.itemVideo.setMediaController(new MediaController(holder.itemView.getContext()));
-//            System.out.println(url.toString());
-            Uri ano_uri = Uri.parse(url.toString());
-            System.out.println(ano_uri);
-            holder.itemVideo.setVideoURI(ano_uri);
-            holder.itemVideo.start();
-//            holder.itemVideo.requestFocus();
+//            try {
+//                url = new URL(Constant.backendUrl+"/media/"+curItem.getFake());
+//                Bitmap bitmap = requestImg(url);
+//                holder.itemImage.setImageBitmap(bitmap);
+////                System.out.println(url);
+//            } catch (MalformedURLException e) {
+//                e.printStackTrace();
+//            }
+//            holder.itemImage.setOnClickListener(new View.OnClickListener() {
+//                @Override
+//                public void onClick(View v) {
+//                    playVideo(Constant.backendUrl+"/media/"+curItem.getFileName());
+//                }
+//            });
+
         }
         holder.contentItemView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -233,18 +240,24 @@ public class PostListAdapter extends
             public void onClick(View v) {
                 int curPosition = holder.getAdapterPosition();
                 Item curItem = itemList.get(curPosition);
+                HashMap<String, Object> paramMap = new HashMap<>();
+                paramMap.put("item_id", curItem.getItemId());
+                paramMap.put("user_id", curItem.getUserId());
                 if (curItem.getLiked()) {
                     // TODO: Send change to backend
-                    HashMap<String, Object> paramMap = new HashMap<>();
-                    paramMap.put("item_id", curItem.getItemId());
-                    paramMap.put("user_id", curItem.getUserId());
                     ///////////////////////////////////////////
                     ////////// Backend Connection /////////////
                     // String result = HttpUtil.post(likeUrl, paramMap);
                     // result (String) -->> result (json)
                     ///////////////////////////////////////////
-                    String result = SUCCESS;
-                    if (result.equals(FAILURE))
+                    JSONObject obj = new JSONObject(paramMap);
+                    ///////////////////////////////////////////
+                    ////////// Backend Connection /////////////
+                    String obj_string = obj.toJSONString();
+                    String result = HttpUtil.post(likeUrl, obj_string);
+                    HashMap mapType = JSON.parseObject(result,HashMap.class);
+                    String resu = (String) mapType.get("msg").toString();
+                    if (resu.equals(FAILURE))
                     {
                         AlertDialog.Builder builder = new AlertDialog.Builder(holder.itemView.getContext());
                         builder.setIcon(null);
@@ -265,9 +278,13 @@ public class PostListAdapter extends
                 }
                 else {
                     // TODO: Send change to backend
-                    HashMap<String, Object> paramMap = new HashMap<>();
-                    paramMap.put("item_id", curItem.getItemId());
-                    paramMap.put("user_id", curItem.getUserId());
+                    JSONObject obj = new JSONObject(paramMap);
+                    ///////////////////////////////////////////
+                    ////////// Backend Connection /////////////
+                    String obj_string = obj.toJSONString();
+                    String result = HttpUtil.post(dislikeUrl, obj_string);
+                    HashMap mapType = JSON.parseObject(result,HashMap.class);
+                    String resu = (String) mapType.get("msg").toString();
                     ///////////////////////////////////////////
                     ////////// Backend Connection /////////////
                     // String result = HttpUtil.post(dislikeUrl, paramMap);
@@ -291,6 +308,8 @@ public class PostListAdapter extends
                 Intent intent = new Intent(curContext, SelfItemActivity.class);
 //                String searchContent = searchEditText.getText().toString();
                 intent.putExtra("userId", curItem.getUserId());
+                System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>");
+                System.out.println(curItem.getUserId());
                 intent.putExtra("userName", curItem.getUserName());
                 curContext.startActivity(intent);
 
@@ -328,8 +347,19 @@ public class PostListAdapter extends
         Context curContext = mInflater.getContext();
         Intent intent = new Intent(curContext, DetailedItemActivity.class);
 //                String searchContent = searchEditText.getText().toString();
+
+
         intent.putExtra("item_id", item_id);
         curContext.startActivity(intent);
+    }
+    private void playVideo(String uristr){
+        Uri uri = Uri.parse(uristr);
+        Intent ointent = new Intent();
+        ointent.setAction(Intent.ACTION_VIEW);
+        ointent.setDataAndType(uri,"video/mp4");
+        Context curContext = mInflater.getContext();
+        curContext.startActivity(ointent);
+        System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
     }
     private Bitmap requestImg(final URL imgUrl)
     {

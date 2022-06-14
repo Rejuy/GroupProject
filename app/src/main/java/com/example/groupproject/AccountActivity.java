@@ -20,20 +20,24 @@ public class AccountActivity extends AppCompatActivity {
     private String name = "这里是用户名";;
     private String email = "11111@aks.com";
     private String password = "123456aaa";
+    private String introduction = "xxxx";
     private String url = Constant.backendUrl+Constant.updateUserUrl;
     private String user_url = Constant.backendUrl+Constant.getUserUrl;
 
     private TextView curName;
     private TextView curEmail;
     private TextView curPassword;
+    private TextView curIntroduction;
 
     private ImageView confirmName;
     private ImageView confirmEmail;
     private ImageView confirmPassword;
+    private ImageView confirmIntroduction;
 
     private EditText editNewName;
     private EditText editNewEmail;
     private EditText editNewPassword;
+    private EditText editNewIntroduction;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,6 +66,7 @@ public class AccountActivity extends AppCompatActivity {
             name = (String) user.get("user_name");
             email = (String) user.get("email");
             password = (String) user.get("password");
+            introduction = (String) user.get("introduction");
         }
 
         // TODO: Get user information to display
@@ -181,11 +186,57 @@ public class AccountActivity extends AppCompatActivity {
                 ///////////////////////////////////////////
                 ////////// Backend Connection /////////////
                 String obj_string = obj.toJSONString();
-                String result = HttpUtil.post(url, obj_string);
+                String result = HttpUtil.post(url, paramMap);
                 HashMap mapType = JSON.parseObject(result,HashMap.class);
                 String res = (String) mapType.get("msg").toString();
                 if(res.equals("ok")){
                     curPassword.setText("当前密码：" + password);
+                }
+//                intent.putExtra("searchContent", searchContent);
+//                startActivityForResult(intent, TEXT_REQUEST);
+            }
+        });
+
+        confirmIntroduction = findViewById(R.id.confirm_introduction);
+        editNewIntroduction = findViewById(R.id.edit_introduction);
+        curIntroduction = findViewById(R.id.center_current_introduction);
+        curIntroduction.setText("当前介绍：" + introduction);
+        confirmIntroduction.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                System.out.print("image click");
+//                Intent intent = new Intent(getActivity(), SearchResultActivity.class);
+                introduction = editNewIntroduction.getText().toString();
+                // TODO: Connect backend
+//                paramMap.put("user_name", account);
+//                paramMap.put("password", password);
+                ///////////////////////////////////////////
+                ////////// Backend Connection /////////////
+                // String result = HttpUtil.post(url, paramMap);
+                // result (String) -->> result (json)
+                ///////////////////////////////////////////
+
+                HashMap<String, Object> paramMap = new HashMap<>();
+                paramMap.put("user_id",IndexActivity.user_id);
+                paramMap.put("user_image","");
+                paramMap.put("introduction",introduction);
+                paramMap.put("user_name", "");
+                paramMap.put("password","");
+                paramMap.put("email","");
+                ///////////////////////////////////////////
+                ////////// Backend Connection /////////////
+                // String result = HttpUtil.post(url, paramMap);
+                // result (String) -->> result (json)
+                ///////////////////////////////////////////
+                JSONObject obj = new JSONObject(paramMap);
+                ///////////////////////////////////////////
+                ////////// Backend Connection /////////////
+                String obj_string = obj.toJSONString();
+                String result = HttpUtil.post(url, paramMap);
+                HashMap mapType = JSON.parseObject(result,HashMap.class);
+                String res = (String) mapType.get("msg").toString();
+                if(res.equals("ok")){
+                    curIntroduction.setText("当前介绍：" + introduction);
                 }
 //                intent.putExtra("searchContent", searchContent);
 //                startActivityForResult(intent, TEXT_REQUEST);

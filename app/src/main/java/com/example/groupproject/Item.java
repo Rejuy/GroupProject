@@ -11,6 +11,7 @@ public class Item {
     private int commentsCount;
     private Boolean liked;
     private String fileName;
+    private String fakeimage;
 
     public static final String FOLLOW = "已关注";
     public static final String HAVE_NOT_FOLLOW = "未关注";
@@ -33,7 +34,8 @@ public class Item {
                 int _commentsCount,
                 int _type,
                 Boolean _liked,
-                String _filename)
+                String _filename,
+                String _fakeimage)
     {
         itemId = _itemId;
         title = _title;
@@ -41,11 +43,14 @@ public class Item {
         userName = _userName;
         followCondition = _followCondition;
         userId = _userId;
+        System.out.println("???????????????????????????????????");
+        System.out.println(_userId);
         likesCount = _likesCount;
         commentsCount = _commentsCount;
         type = _type;
         liked = _liked;
         fileName=_filename;
+        fakeimage = _fakeimage;
     }
 
     public int getItemId() { return itemId; }
@@ -81,6 +86,9 @@ public class Item {
     public Boolean getLiked() { return liked; }
 
     public String getFileName(){return fileName;}
+    public String getFake(){return  fakeimage;}
+
+    public void setFollowCondition(String condition) { followCondition = condition; }
 
     public void like() {
         likesCount += 1;

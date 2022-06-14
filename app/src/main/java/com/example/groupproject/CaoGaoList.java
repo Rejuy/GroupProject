@@ -34,7 +34,7 @@ public class CaoGaoList extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_cao_gao_list);
         readSDcard();
-        if(total_msg!=""){
+        if(total_msg!="" && total_msg!="[[]]"){
             HashMap mapType = JSON.parseObject(total_msg,HashMap.class);
 //            String tmp_str=mapType.get("save_list").toString();
             System.out.println(mapType.get("save_list").toString());
@@ -47,7 +47,7 @@ public class CaoGaoList extends AppCompatActivity {
                 it.setContent(tmp.get("content").toString());
                 it.setLoc(tmp.get("loc").toString());
                 it.setFilename(tmp.get("filename").toString());
-                it.setTime("");
+                it.setTime(tmp.get("create_time").toString());
                 it.setType((int)tmp.get("type"));
                 itemList.add(it);
             }
@@ -68,7 +68,7 @@ public class CaoGaoList extends AppCompatActivity {
                     Environment.MEDIA_MOUNTED)) {
                 // 获取SD卡的文件夹
                 String sdDire = getExternalFilesDir(null).getPath();
-                File testFile = new File(sdDire,"test.txt");
+                File testFile = new File(sdDire,Constant.userId+".txt");
                 FileInputStream inStream = new FileInputStream(testFile);
                 InputStreamReader reader = new InputStreamReader(inStream, "GBK");
                 BufferedReader bReader =  new BufferedReader(reader);

@@ -17,4 +17,10 @@
         android:id="@+id/creat_time"
         style="@style/post_content"/>
 
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/delete_button"
+        android:text="删除草稿"/>
+
 </LinearLayout>

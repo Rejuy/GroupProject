@@ -57,13 +57,6 @@
         android:layout_height="wrap_content"
         android:maxHeight="100dp"
         android:maxWidth="100dp"/>
-    <VideoView
-        android:id="@+id/item_video"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:maxHeight="100dp"
-        android:maxWidth="100dp"/>
-
     <View
         android:layout_width="match_parent"
         android:layout_height="3dp"
