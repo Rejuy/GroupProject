@@ -9,6 +9,9 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.AdaptiveIconDrawable;
+import android.graphics.drawable.Drawable;
+import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -17,6 +20,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.MediaController;
+import android.widget.SeekBar;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -29,14 +33,18 @@ import com.alibaba.fastjson.JSONObject;
 
 import org.w3c.dom.Text;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.TimeZone;
 
 import cn.hutool.http.HttpUtil;
 
@@ -55,6 +63,9 @@ public class PostListAdapter extends
     private static final String dislikeUrl = Constant.backendUrl + Constant.itemDislikeUrl;
     private static final String SUCCESS = "ok";
     private static final String FAILURE = "like not found";
+    private String video_str = "";
+    private String filename = "";
+    PostListAdapter.PostViewHolder tmp_holder;
 
 
     class PostViewHolder extends RecyclerView.ViewHolder
@@ -71,6 +82,8 @@ public class PostListAdapter extends
         public final ImageView shareButton;
         public final ImageView userImage;
         public final ImageView itemImage;
+        public final Button startButton;
+        public final Button stopButton;
         final PostListAdapter mAdapter;
 
         /**
@@ -94,6 +107,8 @@ public class PostListAdapter extends
             shareButton = itemView.findViewById(R.id.share_button);
             userImage = itemView.findViewById(R.id.user_image);
             itemImage = itemView.findViewById(R.id.item_image);
+            startButton = itemView.findViewById(R.id.play_button);
+            stopButton = itemView.findViewById(R.id.stop_button);
 
 
             // On click
@@ -170,6 +185,7 @@ public class PostListAdapter extends
         // Retrieve the data for that position.
         Object objItem = itemList.get(position);
         Item curItem = (Item) objItem;
+        tmp_holder = holder;
 //        String mCurrentContent = mContentList.get(position);
         // Add the data to the view holder.
         holder.titleItemView.setText(curItem.getTitle());
@@ -178,6 +194,18 @@ public class PostListAdapter extends
         holder.commentCountItemView.setText(String.valueOf(curItem.getCommentsCount()));
         holder.likesCountItemView.setText(String.valueOf(curItem.getLikesCount()));
         holder.followCondition.setText(curItem.getFollowCondition());
+        String tmp_image = curItem.getUserImage();
+        if(!tmp_image.equals("")){
+            try {
+                URL tmp_url = null;
+                tmp_url = new URL(Constant.backendUrl+"/media/"+tmp_image);
+                System.out.println(tmp_image);
+                Bitmap bitmap = requestImg(tmp_url);
+                holder.userImage.setImageBitmap(bitmap);
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            }
+        }
         URL url = null;
         if(curItem.getType() == Item.IMAGE){
             try {
@@ -189,24 +217,47 @@ public class PostListAdapter extends
                 e.printStackTrace();
             }
         }else if(curItem.getType()==Item.VIDEO){
+            try {
+                url = new URL(Constant.backendUrl+"/media/"+curItem.getFake());
+                Bitmap bitmap = requestImg(url);
+                holder.itemImage.setImageBitmap(bitmap);
+//                System.out.println(url);
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            }
+            filename = curItem.getFileName();
+            my_video_get tmp =new my_video_get();
+            tmp.run();
+        }else if(curItem.getType()==Item.AUDIO){
+            MediaPlayer mmediaplayer = new MediaPlayer();
+            System.out.println(Constant.backendUrl+"/media/"+curItem.getFileName());
+            try {
+                mmediaplayer.setDataSource(Constant.backendUrl+"/media/"+curItem.getFileName());
+                System.out.println(Constant.backendUrl+"/media/"+curItem.getFileName());
+                mmediaplayer.prepareAsync();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            holder.startButton.setVisibility(View.VISIBLE);
+            holder.stopButton.setVisibility(View.VISIBLE);
+            holder.startButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
 
-
-
-//            try {
-//                url = new URL(Constant.backendUrl+"/media/"+curItem.getFake());
-//                Bitmap bitmap = requestImg(url);
-//                holder.itemImage.setImageBitmap(bitmap);
-////                System.out.println(url);
-//            } catch (MalformedURLException e) {
-//                e.printStackTrace();
-//            }
-//            holder.itemImage.setOnClickListener(new View.OnClickListener() {
-//                @Override
-//                public void onClick(View v) {
-//                    playVideo(Constant.backendUrl+"/media/"+curItem.getFileName());
-//                }
-//            });
-
+                    if (!mmediaplayer.isPlaying()) {
+                        mmediaplayer.start();
+                    }
+                }
+            });
+            holder.stopButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (mmediaplayer.isPlaying()) {
+                        mmediaplayer.stop();
+                        mmediaplayer.release();
+                    }
+                }
+            });
         }
         holder.contentItemView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -235,6 +286,10 @@ public class PostListAdapter extends
                 To_detail(item_id);
             }
         });
+        Context curContext = mInflater.getContext();
+        if(curItem.getLiked()){
+            holder.likeButton.setImageDrawable(curContext.getResources().getDrawable(R.drawable.ic_like));
+        }
         holder.likeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -254,7 +309,7 @@ public class PostListAdapter extends
                     ///////////////////////////////////////////
                     ////////// Backend Connection /////////////
                     String obj_string = obj.toJSONString();
-                    String result = HttpUtil.post(likeUrl, obj_string);
+                    String result = HttpUtil.post(dislikeUrl, obj_string);
                     HashMap mapType = JSON.parseObject(result,HashMap.class);
                     String resu = (String) mapType.get("msg").toString();
                     if (resu.equals(FAILURE))
@@ -282,7 +337,7 @@ public class PostListAdapter extends
                     ///////////////////////////////////////////
                     ////////// Backend Connection /////////////
                     String obj_string = obj.toJSONString();
-                    String result = HttpUtil.post(dislikeUrl, obj_string);
+                    String result = HttpUtil.post(likeUrl, obj_string);
                     HashMap mapType = JSON.parseObject(result,HashMap.class);
                     String resu = (String) mapType.get("msg").toString();
                     ///////////////////////////////////////////
@@ -341,6 +396,57 @@ public class PostListAdapter extends
     @Override
     public int getItemCount() {
         return itemList.size();
+    }
+    class my_video_get implements Runnable{
+        @Override
+        public void run(){
+            video_get();
+        }
+    }
+    private void video_get(){
+        String sdDire = mInflater.getContext().getExternalFilesDir(null).getPath();
+        File testFile = new File(sdDire,Constant.userId+filename+".mp4");
+        try {
+            if(testFile.exists()){
+                testFile.delete();
+            }
+            testFile.createNewFile();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        HttpUtil.downloadFile(Constant.backendUrl+"/media/"+filename,testFile);
+        Toast.makeText(mInflater.getContext(), "下载成功!!!!!!!!!!",
+                Toast.LENGTH_SHORT).show();
+        tmp_holder.itemImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+//                    playVideo(Constant.backendUrl+"/media/"+curItem.getFileName());
+                video_str = mInflater.getContext().getExternalFilesDir(null).getPath()+"/"+Constant.userId+filename+".mp4";
+                my_video_thread tmp =new my_video_thread();
+                tmp.run();
+                System.out.println(video_str);
+
+            }
+        });
+    }
+    class my_video_thread implements Runnable{
+        @Override
+        public void run(){
+            playVideo(video_str);
+        }
+    }
+    public  String get_time(){
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"); //设置时间格式
+
+
+        formatter.setTimeZone(TimeZone.getTimeZone("GMT+08")); //设置时区
+
+
+        Date curDate = new Date(System.currentTimeMillis()); //获取当前时间
+
+
+        String createDate = formatter.format(curDate);   //格式转换
+        return createDate;
     }
 
     public void To_detail(int item_id){

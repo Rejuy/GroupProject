@@ -58,6 +58,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.text.NumberFormat;
 
 import java.text.SimpleDateFormat;
@@ -93,18 +94,11 @@ public class itemCreateActivity extends AppCompatActivity {
     String tmp_title = "unset";
     String tmp_content = "unset";
     String fake_image_path = "";
-    int SamplingRate = 48000;
-    //格式：双声道
-    int channelConfiguration = AudioFormat.CHANNEL_IN_STEREO;
-    //16Bit
-    int audioEncoding = AudioFormat.ENCODING_PCM_16BIT;
-    //是否在录制
-    boolean isRecording = false;
-    //每次从audio record输入流中获取到的buffer的大小
-    int bufferSize = 0;
     int tmp_type = 0;//默认为纯文本
     int status;
     int issaved = 0;//记录是否被自动保存
+    Handler handler;
+    Runnable runnable;
     String tmp_loc = "unset";
     String tmp_filepath = "";
     ArrayList<item_unfinished> curList = new ArrayList<>();
@@ -191,9 +185,9 @@ public class itemCreateActivity extends AppCompatActivity {
 //        mygeo_Thread my = new mygeo_Thread();
 //        my.run();
 //        System.out.println(total_msg);
-        Handler handler=new Handler();
+        handler=new Handler();
 
-        Runnable runnable=new Runnable() {
+        runnable=new Runnable() {
             @Override
             public void run() {
                 // TODO Auto-generated method stub
@@ -276,19 +270,23 @@ public class itemCreateActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 HashMap<String, Object> paramMap = new HashMap<>();
+                int flag = 1;
                 if(title.length()==0){
                     Toast.makeText(that,"标题不能为空",Toast.LENGTH_SHORT).show();
+                    flag = 0;
                 }else {
                     tmp_title = title.getText().toString();
                 }
                 if(content.length()==0){
                     Toast.makeText(that,"内容不能为空",Toast.LENGTH_SHORT).show();
+                    flag = 0;
                 }else {
                     tmp_content = content.getText().toString();
                 }
                 if(tmp_type !=0){
                     if(tmp_filepath.length()==0){
                         Toast.makeText(that,"上传文件不能为空",Toast.LENGTH_SHORT).show();
+                        flag = 0;
                     }
                     paramMap.put("file", FileUtil.file(tmp_filepath));
                 }else{
@@ -296,19 +294,51 @@ public class itemCreateActivity extends AppCompatActivity {
                 }
                 if(tmp_loc.length()==0){
                     Toast.makeText(that,"地址信息不能为空",Toast.LENGTH_SHORT).show();
+                    flag = 0;
                 }
                 if(tmp_type == 3){
                     paramMap.put("fake_image",FileUtil.file(fake_image_path));
                 }
-                paramMap.put("user_id",Constant.userId);
-                paramMap.put("title",tmp_title);
-                paramMap.put("content",tmp_content);
-                paramMap.put("type",tmp_type);
-                paramMap.put("location",tmp_loc);
-                String result1= HttpUtil.post(send_url, paramMap);
+                if(flag == 1){
+                    paramMap.put("user_id",Constant.userId);
+                    paramMap.put("title",tmp_title);
+                    paramMap.put("content",tmp_content);
+                    paramMap.put("type",tmp_type);
+                    paramMap.put("location",tmp_loc);
+                    String result1= HttpUtil.post(send_url, paramMap);
 
-                System.out.println(status);
-                System.out.println(issaved);
+                    System.out.println(status);
+                    System.out.println(issaved);
+                    if(status == 1){//新建
+                        if(issaved == 1){//已被自动保存
+                            curList.remove(curList.size()-1);
+                        }
+                    }else{
+                        curList.remove(position);
+                    }
+                    item_unfinished_list save_list = new item_unfinished_list();
+                    save_list.setlist(curList);
+                    String str = JSON.toJSONString(save_list);
+                    handler.removeCallbacks(runnable);
+                    writeSDcard(str);
+                    Intent tmp_intent = new Intent(that, IndexActivity.class);
+                    AlertDialog.Builder builder = new AlertDialog.Builder(that);
+                    builder.setIcon(null);
+                    builder.setTitle("提示");
+                    builder.setMessage("已发送!");
+                    builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            startActivityForResult(tmp_intent,1);
+                        }
+                    }).show();
+                }
+            }
+        });
+        Button delete_button = findViewById(R.id.delete_button);
+        delete_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
                 if(status == 1){//新建
                     if(issaved == 1){//已被自动保存
                         curList.remove(curList.size()-1);
@@ -322,7 +352,16 @@ public class itemCreateActivity extends AppCompatActivity {
                 handler.removeCallbacks(runnable);
                 writeSDcard(str);
                 Intent tmp_intent = new Intent(that, IndexActivity.class);
-                startActivityForResult(tmp_intent,1);
+                AlertDialog.Builder builder = new AlertDialog.Builder(that);
+                builder.setIcon(null);
+                builder.setTitle("提示");
+                builder.setMessage("已删除!");
+                builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        startActivityForResult(tmp_intent,1);
+                    }
+                }).show();
             }
         });
         save_btn = findViewById(R.id.save_button);
@@ -372,10 +411,26 @@ public class itemCreateActivity extends AppCompatActivity {
                 System.out.println(str);
                 handler.removeCallbacks(runnable);
                 Intent tmp_intent = new Intent(that, CaoGaoList.class);
-                startActivityForResult(tmp_intent,1);
+                AlertDialog.Builder builder = new AlertDialog.Builder(that);
+                builder.setIcon(null);
+                builder.setTitle("提示");
+                builder.setMessage("已保存为草稿!");
+                builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        startActivityForResult(tmp_intent,1);
+                    }
+                }).show();
             }
         });
     }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        handler.removeCallbacks(runnable);
+    }
+
     class mygeo_Thread implements Runnable{
         @Override
         public void run() {
@@ -451,7 +506,7 @@ public class itemCreateActivity extends AppCompatActivity {
                 String sdDire = getExternalFilesDir(null).getPath();
                 File testFile = new File(sdDire,Constant.userId+".txt");
                 FileOutputStream outFileStream = new FileOutputStream(testFile);
-                outFileStream.write(str.getBytes());
+                outFileStream.write(str.getBytes("GB2312"));
                 outFileStream.close();
                 System.out.println("test.txt ok");
             }
@@ -801,7 +856,7 @@ public class itemCreateActivity extends AppCompatActivity {
                 }
                 break;
 
-            case TAKE_AUDIO:// 视频
+            case TAKE_AUDIO:// 音频
                 if (resultCode == RESULT_OK) {
                     Toast.makeText(this, "Audio saved to:\n" +
 
@@ -816,7 +871,7 @@ public class itemCreateActivity extends AppCompatActivity {
                 }
                 break;
 
-            case LOCAL_AUDIO:// 视频
+            case LOCAL_AUDIO:// 音频
                 if (resultCode == RESULT_OK) {
                     Toast.makeText(this, "Audio saved to:\n" +
 
@@ -918,167 +973,7 @@ public class itemCreateActivity extends AppCompatActivity {
             String createDate = formatter.format(curDate);   //格式转换
             return createDate;
         }
-    public void StartRecord(String name) {
-        //生成原始数据文件
-        File file = new File(name);
-        //如果文件已经存在，就先删除再创建
-        if (file.exists())
-            file.delete();
-        try {
-            file.getParentFile().mkdirs();
-            file.createNewFile();
-        } catch (IOException e) {
-            throw new IllegalStateException("未能创建" + file.toString());
-        }
-        try {
-            //文件输出流
-            OutputStream os = new FileOutputStream(file);
-            BufferedOutputStream bos = new BufferedOutputStream(os);
-            DataOutputStream dos = new DataOutputStream(bos);
-            //获取在当前采样和信道参数下，每次读取到的数据buffer的大小
-            bufferSize = AudioRecord.getMinBufferSize(SamplingRate, channelConfiguration, audioEncoding);
-            //建立audioRecord实例
-            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO)!=
-                    PackageManager.PERMISSION_GRANTED||
-                    ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)!=
-                            PackageManager.PERMISSION_GRANTED||
-                    ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)!=
-                            PackageManager.PERMISSION_GRANTED
-            )
-            {
-                ActivityCompat.requestPermissions(this,
-                        new String[]{android.Manifest.permission.RECORD_AUDIO,
-                                android.Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                                Manifest.permission.READ_EXTERNAL_STORAGE}, 0);
-            }
-            AudioRecord audioRecord = new AudioRecord(MediaRecorder.AudioSource.MIC, SamplingRate, channelConfiguration, audioEncoding, bufferSize);
 
-            //设置用来承接从audio record实例中获取的原始数据的数组
-            byte[] buffer = new byte[bufferSize];
-            //启动audioRecord
-            audioRecord.startRecording();
-            //设置正在录音的参数isRecording为true
-            isRecording = true;
-            //只要isRecording为true就一直从audioRecord读出数据，并写入文件输出流。
-            //当停止按钮被按下，isRecording会变为false，循环停止
-            while (isRecording) {
-                int bufferReadResult = audioRecord.read(buffer, 0, bufferSize);
-                for (int i = 0; i < bufferReadResult; i++) {
-                    dos.write(buffer[i]);
-                }
-            }
-            //停止audioRecord，关闭输出流
-            audioRecord.stop();
-            dos.close();
-        } catch (Throwable t) {
-            Log.e("MainActivity", "录音失败");
-        }
-    }
-
-    private void copyWaveFile(String inFileName, String outFileName)
-    {
-        FileInputStream in = null;
-        FileOutputStream out = null;
-        long totalAudioLen = 0;
-        //wav文件比原始数据文件多出了44个字节，除去表头和文件大小的8个字节剩余文件长度比原始数据多36个字节
-        long totalDataLen = totalAudioLen + 36;
-        long longSampleRate = SamplingRate;
-        int channels = 2;
-        //每分钟录到的数据的字节数
-        long byteRate = 16 * SamplingRate * channels / 8;
-
-        byte[] data = new byte[bufferSize];
-        try
-        {
-            in = new FileInputStream(inFileName);
-            out = new FileOutputStream(outFileName);
-            //获取真实的原始数据长度
-            totalAudioLen = in.getChannel().size();
-            totalDataLen = totalAudioLen + 36;
-            //为wav文件写文件头
-            WriteWaveFileHeader(out, totalAudioLen, totalDataLen, longSampleRate, channels, byteRate);
-            //把原始数据写入到wav文件中。
-            while(in.read(data) != -1)
-            {
-                out.write(data);
-            }
-            in.close();
-            out.close();
-        } catch (FileNotFoundException e)
-        {
-            e.printStackTrace();
-        } catch (IOException e)
-        {
-            e.printStackTrace();
-        }
-    }
-
-    private void WriteWaveFileHeader(FileOutputStream out, long totalAudioLen,
-                                     long totalDataLen, long longSampleRate, int channels, long byteRate)
-            throws IOException {
-        byte[] header = new byte[44];
-        header[0] = 'R'; // RIFF/WAVE header
-        header[1] = 'I';
-        header[2] = 'F';
-        header[3] = 'F';
-        header[4] = (byte) (totalDataLen & 0xff);
-        header[5] = (byte) ((totalDataLen >> 8) & 0xff);
-        header[6] = (byte) ((totalDataLen >> 16) & 0xff);
-        header[7] = (byte) ((totalDataLen >> 24) & 0xff);
-        header[8] = 'W';
-        header[9] = 'A';
-        header[10] = 'V';
-        header[11] = 'E';
-        header[12] = 'f'; // 'fmt ' chunk
-        header[13] = 'm';
-        header[14] = 't';
-        header[15] = ' ';
-        header[16] = 16;
-        header[17] = 0;
-        header[18] = 0;
-        header[19] = 0;
-        header[20] = 1; // WAV type format = 1
-        header[21] = 0;
-        header[22] = (byte) channels; //指示是单声道还是双声道
-        header[23] = 0;
-        header[24] = (byte) (longSampleRate & 0xff); //采样频率
-        header[25] = (byte) ((longSampleRate >> 8) & 0xff);
-        header[26] = (byte) ((longSampleRate >> 16) & 0xff);
-        header[27] = (byte) ((longSampleRate >> 24) & 0xff);
-        header[28] = (byte) (byteRate & 0xff); //每分钟录到的字节数
-        header[29] = (byte) ((byteRate >> 8) & 0xff);
-        header[30] = (byte) ((byteRate >> 16) & 0xff);
-        header[31] = (byte) ((byteRate >> 24) & 0xff);
-        header[32] = (byte) (channels * 16 / 8); // block align
-        header[33] = 0;
-        header[34] = 16; // bits per sample
-        header[35] = 0;
-        header[36] = 'd';
-        header[37] = 'a';
-        header[38] = 't';
-        header[39] = 'a';
-        header[40] = (byte) (totalAudioLen & 0xff); //真实数据的长度
-        header[41] = (byte) ((totalAudioLen >> 8) & 0xff);
-        header[42] = (byte) ((totalAudioLen >> 16) & 0xff);
-        header[43] = (byte) ((totalAudioLen >> 24) & 0xff);
-        //把header写入wav文件
-        out.write(header, 0, 44);
-    }
-    private void GetPermission() {
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO)!=
-                PackageManager.PERMISSION_GRANTED||
-                ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)!=
-                        PackageManager.PERMISSION_GRANTED||
-                ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)!=
-                        PackageManager.PERMISSION_GRANTED
-        )
-        {
-            ActivityCompat.requestPermissions(this,
-                    new String[]{android.Manifest.permission.RECORD_AUDIO,
-                            android.Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                            Manifest.permission.READ_EXTERNAL_STORAGE}, 0);
-        }
-    }
 }
 
 

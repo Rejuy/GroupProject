@@ -60,6 +60,7 @@ public class TabFragmentItem extends Fragment {
     private Button allItemButton;
     private Button followItemButton;
     private int state = 0;
+    private boolean isFirstLoading = true;
     private TextView textViewState;
     private FloatingActionButton fab;
 
@@ -99,6 +100,95 @@ public class TabFragmentItem extends Fragment {
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
     }
+    @Override
+    public void onResume(){
+        super.onResume();
+        if (!isFirstLoading){
+            refresh();
+        }else{
+            isFirstLoading = false;
+        }
+    }
+    private void refresh(){
+        HashMap<String, Object> paramMap = new HashMap<>();
+        paramMap.put("user_id", IndexActivity.user_id);
+        paramMap.put("search", "");
+        paramMap.put("search_type", "");
+        paramMap.put("type", new Boolean[]{true, true, true, true});
+        paramMap.put("follower", false);
+        paramMap.put("sort", "time");
+
+        JSONObject obj = new JSONObject(paramMap);
+        ///////////////////////////////////////////
+        ////////// Backend Connection /////////////
+        String obj_string = obj.toJSONString();
+        String result = HttpUtil.post(url, obj_string);
+        HashMap mapType = JSON.parseObject(result,HashMap.class);
+        String resu = (String) mapType.get("msg").toString();
+        System.out.println(resu);
+        // result (String) -->> result (json)
+        ///////////////////////////////////////////
+//                String result = "no item";
+        if (resu.equals(NO_ITEM) )
+        {
+            alertNoItem();
+            itemList.clear();
+            mRecyclerView = getActivity().findViewById(R.id.recyclerview);
+            // Create an adapter and supply the data to be displayed.
+            mAdapter = new PostListAdapter(getActivity(), itemList);
+            // Connect the adapter with the recycler view.
+            mRecyclerView.setAdapter(mAdapter);
+            // Give the recycler view a default layout manager.
+            mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+            return;
+        }
+        JSONArray json_list = (JSONArray) mapType.get("data");
+
+        System.out.println(json_list);
+        // Construct temporary data
+        itemList.clear();
+        for (int i = 0; i < json_list.size(); i++) {
+            JSONObject tmp =  (JSONObject) json_list.get(i);
+            int curUserId = (int)tmp.get("user_id");
+            int curItemId = (int)tmp.get("item_id");
+            System.out.println("item_list");
+            System.out.println(curUserId);
+            String curUserName = tmp.get("user_name").toString();
+            String curTitle = tmp.get("title").toString();
+            String curContent = tmp.get("content").toString()+"\n";
+            String curFollowCondition = ((Boolean)tmp.get("is_followed")?Item.FOLLOW:Item.HAVE_NOT_FOLLOW);
+            String curTime = tmp.get("created_time").toString();
+            curContent += curTime;
+            int curLikesCount = (int)tmp.get("like_count");
+            int curCommentsCount = (int)tmp.get("comment_count");
+            int curType = (int)tmp.get("type");
+            String curFilename = tmp.get("file_name").toString();
+            String fakeimage_path = "";
+            if(curType == 3){
+                fakeimage_path = tmp.get("fake_image").toString();
+            }
+            String curUserImage = "";
+            if(tmp.getString("user_image_name")==null){
+
+            }else{
+                curUserImage= tmp.get("user_image_name").toString();
+            }
+            Boolean is_liked = (Boolean)tmp.get("is_liked");
+            Item curItem = new Item(curItemId, curTitle, curContent, curUserName, curFollowCondition, curUserId,
+                    curLikesCount, curCommentsCount, curType, is_liked,curFilename,fakeimage_path,curUserImage);
+            itemList.add(curItem);
+        }
+
+
+        // Create recycler view.
+        mRecyclerView = getActivity().findViewById(R.id.recyclerview);
+        // Create an adapter and supply the data to be displayed.
+        mAdapter = new PostListAdapter(getActivity(), itemList);
+        // Connect the adapter with the recycler view.
+        mRecyclerView.setAdapter(mAdapter);
+        // Give the recycler view a default layout manager.
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -107,10 +197,7 @@ public class TabFragmentItem extends Fragment {
         Intent intent = getActivity().getIntent();
         userId = intent.getIntExtra("userId", 1);
         System.out.println("====== Fragment Item ======\n" + userId + "\n============\n");
-
-        TextView textViewUser = rootView.findViewById(R.id.test);
         String id_ = Integer.toString(userId);
-        textViewUser.setText(id_);
         fab = rootView.findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -120,7 +207,6 @@ public class TabFragmentItem extends Fragment {
                 startActivity(intent);
             }
         });
-        textViewState = rootView.findViewById(R.id.state);
 
         searchEditText = rootView.findViewById(R.id.index_edit_search);
 
@@ -145,7 +231,6 @@ public class TabFragmentItem extends Fragment {
 
         allItemButton.setEnabled(false);
         followItemButton.setEnabled(true);
-        textViewState.setText("all items on!");
         allItemButton.setBackgroundColor(getResources().getColor(R.color.dark_green));
         followItemButton.setBackgroundColor(getResources().getColor(R.color.title_bg));
 
@@ -153,7 +238,6 @@ public class TabFragmentItem extends Fragment {
             @Override
             public void onClick(View v) {
                 // TODO: Get all items
-                textViewState.setText("all items on!");
                 allItemButton.setEnabled(false);
                 followItemButton.setEnabled(true);
                 allItemButton.setBackgroundColor(getResources().getColor(R.color.dark_green));
@@ -205,9 +289,15 @@ public class TabFragmentItem extends Fragment {
                     if(curType == 3){
                         fakeimage_path = tmp.get("fake_image").toString();
                     }
+                    String curUserImage = "";
+                    if(tmp.getString("user_image_name")==null){
 
+                    }else{
+                        curUserImage= tmp.get("user_image_name").toString();
+                    }
+                    Boolean is_liked = (Boolean)tmp.get("is_liked");
                     Item curItem = new Item(curItemId, curTitle, curContent, curUserName, curFollowCondition, curUserId,
-                            curLikesCount, curCommentsCount, curType, false,curFilename,fakeimage_path);
+                            curLikesCount, curCommentsCount, curType, is_liked,curFilename,fakeimage_path,curUserImage);
                     itemList.add(curItem);
                 }
                 mAdapter = new PostListAdapter(getActivity(), itemList);
@@ -222,7 +312,6 @@ public class TabFragmentItem extends Fragment {
             @Override
             public void onClick(View v) {
                 // TODO: Get follow items
-                textViewState.setText("follow items on!");
                 allItemButton.setEnabled(true);
                 allItemButton.setBackgroundColor(getResources().getColor(R.color.title_bg));
                 followItemButton.setBackgroundColor(getResources().getColor(R.color.dark_green));
@@ -273,9 +362,15 @@ public class TabFragmentItem extends Fragment {
                     if(curType == 3){
                         fakeimage_path = tmp.get("fake_image").toString();
                     }
+                    String curUserImage = "";
+                    if(tmp.getString("user_image_name")==null){
 
+                    }else {
+                        curUserImage = tmp.get("user_image_name").toString();
+                    }
+                    Boolean is_liked = (Boolean)tmp.get("is_liked");
                     Item curItem = new Item(curItemId, curTitle, curContent, curUserName, curFollowCondition, curUserId,
-                            curLikesCount, curCommentsCount, curType, false,curFilename,fakeimage_path);
+                            curLikesCount, curCommentsCount, curType, is_liked,curFilename,fakeimage_path,curUserImage);
                     itemList.add(curItem);
                 }
                 mAdapter = new PostListAdapter(getActivity(), itemList);
@@ -335,11 +430,18 @@ public class TabFragmentItem extends Fragment {
             if(curType == 3){
                 fakeimage_path = tmp.get("fake_image").toString();
             }
+            String curUserImage = "";
+            if(tmp.getString("user_image_name")==null){
 
+            }else{
+                curUserImage= tmp.get("user_image_name").toString();
+            }
+            Boolean is_liked = (Boolean)tmp.get("is_liked");
             Item curItem = new Item(curItemId, curTitle, curContent, curUserName, curFollowCondition, curUserId,
-                    curLikesCount, curCommentsCount, curType, false,curFilename,fakeimage_path);
+                    curLikesCount, curCommentsCount, curType, is_liked,curFilename,fakeimage_path,curUserImage);
             itemList.add(curItem);
         }
+
 
         // Create recycler view.
         mRecyclerView = rootView.findViewById(R.id.recyclerview);

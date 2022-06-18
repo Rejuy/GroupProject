@@ -9,17 +9,26 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.media.MediaPlayer;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 
+import java.io.File;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -43,17 +52,23 @@ public class DetailedItemActivity extends AppCompatActivity {
     public TextView userNameItemView;
     public TextView likesCountItemView;
     public TextView commentCountItemView;
+    public TextView likename;
     public ImageView likeButton;
     public ImageView commentButton;
     public ImageView shareButton;
     public ImageView userImage;
+    public ImageView itemImage;
     private RecyclerView mRecyclerView;
     private EditText new_comment;
     private Button send_comment;
+    public  Button startButton;
+    public  Button stopButton;
     boolean like = false;
     String like_name_list="";
+    String video_str;
     CommentAdapter mAdapter;
     int cur_like_count = 0;
+    String cur_filename = "";
 
 
     @Override
@@ -71,6 +86,10 @@ public class DetailedItemActivity extends AppCompatActivity {
         userImage = this.findViewById(R.id.user_image);
         new_comment = this.findViewById(R.id.send_content);
         send_comment = this.findViewById(R.id.comment_send);
+        itemImage = this.findViewById(R.id.item_image);
+        startButton = this.findViewById(R.id.play_button);
+        stopButton = this.findViewById(R.id.stop_button);
+        likename = this.findViewById(R.id.like_name);
 
         Intent intent = this.getIntent();
         itemId = intent.getIntExtra("item_id",-1);
@@ -89,6 +108,76 @@ public class DetailedItemActivity extends AppCompatActivity {
         String cur_time = json_list.get("created_time").toString();
         cur_Content = cur_Content+cur_time;
         String tmp_content = cur_Content;
+        String curUserImage = "";
+        if(json_list.getString("user_image_name")==null){
+
+        }else{
+            curUserImage= json_list.get("user_image_name").toString();
+            try {
+                URL tmp_url = null;
+                tmp_url = new URL(Constant.backendUrl+"/media/"+curUserImage);
+                System.out.println(curUserImage);
+                Bitmap bitmap = requestImg(tmp_url);
+                userImage.setImageBitmap(bitmap);
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            }
+        }
+        int cur_type = (int)json_list.get("type");
+        cur_filename = json_list.get("file_name").toString();
+        String fake_name = json_list.get("fake_image").toString();
+        URL url = null;
+        if(cur_type == Item.IMAGE){
+            try {
+                url = new URL(Constant.backendUrl+"/media/"+cur_filename);
+                System.out.println(cur_filename);
+                Bitmap bitmap = requestImg(url);
+                itemImage.setImageBitmap(bitmap);
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            }
+        }else if(cur_type==Item.VIDEO){
+            try {
+                url = new URL(Constant.backendUrl+"/media/"+fake_name);
+                Bitmap bitmap = requestImg(url);
+                itemImage.setImageBitmap(bitmap);
+//                System.out.println(url);
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            }
+            my_video_get tmp =new my_video_get();
+            tmp.run();
+        }else if(cur_type==Item.AUDIO){
+            MediaPlayer mmediaplayer = new MediaPlayer();
+            System.out.println(Constant.backendUrl+"/media/"+cur_filename);
+            try {
+                mmediaplayer.setDataSource(Constant.backendUrl+"/media/"+cur_filename);
+                System.out.println(Constant.backendUrl+"/media/"+cur_filename);
+                mmediaplayer.prepareAsync();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            startButton.setVisibility(View.VISIBLE);
+            stopButton.setVisibility(View.VISIBLE);
+            startButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+
+                    if (!mmediaplayer.isPlaying()) {
+                        mmediaplayer.start();
+                    }
+                }
+            });
+            stopButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (mmediaplayer.isPlaying()) {
+                        mmediaplayer.stop();
+                        mmediaplayer.release();
+                    }
+                }
+            });
+        }
         cur_like_count = (int)json_list.get("like_count");
         int cur_CommentsCount = (int)json_list.get("comment_count");
         JSONArray comment_list = (JSONArray) json_list.get("comments");
@@ -122,7 +211,7 @@ public class DetailedItemActivity extends AppCompatActivity {
             ItemComment curItem = new ItemComment(id,item_id,user_id, curContent, curTime);
             itemList.add(curItem);
         }
-
+        likename.setText(like_name_list);
         mRecyclerView = this.findViewById(R.id.recyclerview);
         // Create an adapter and supply the data to be displayed.
         mAdapter = new CommentAdapter(this, itemList);
@@ -246,6 +335,62 @@ public class DetailedItemActivity extends AppCompatActivity {
             }
         });
     }
+    private Bitmap requestImg(final URL imgUrl)
+    {
+        Bitmap bitmap = null;
+        try {
+            bitmap = BitmapFactory.decodeStream(imgUrl.openStream());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return bitmap;
+
+    }
+    class my_video_get implements Runnable{
+        @Override
+        public void run(){
+            video_get();
+        }
+    }
+    private void video_get(){
+        String sdDire = that.getExternalFilesDir(null).getPath();
+        File testFile = new File(sdDire,Constant.userId+cur_filename+".mp4");
+        try {
+            if(testFile.exists()){
+                testFile.delete();
+            }
+            testFile.createNewFile();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        HttpUtil.downloadFile(Constant.backendUrl+"/media/"+cur_filename,testFile);
+        Toast.makeText(that, "下载成功!!!!!!!!!!",
+                Toast.LENGTH_SHORT).show();
+        itemImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+//                    playVideo(Constant.backendUrl+"/media/"+curItem.getFileName());
+                video_str = that.getExternalFilesDir(null).getPath()+"/"+Constant.userId+cur_filename+".mp4";
+                my_video_thread tmp =new my_video_thread();
+                tmp.run();
+                System.out.println(video_str);
+            }
+        });
+    }
+    class my_video_thread implements Runnable{
+        @Override
+        public void run(){
+            playVideo(video_str);
+        }
+    }
+    private void playVideo(String uristr){
+        Uri uri = Uri.parse(uristr);
+        Intent ointent = new Intent();
+        ointent.setAction(Intent.ACTION_VIEW);
+        ointent.setDataAndType(uri,"video/mp4");
+        startActivity(ointent);
+        System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+    }
     public void refresh(){
         HashMap<String, Object> paramMap = new HashMap<>();
         paramMap.put("id",itemId);
@@ -264,6 +409,21 @@ public class DetailedItemActivity extends AppCompatActivity {
         int cur_CommentsCount = (int)json_list.get("comment_count");
         JSONArray comment_list = (JSONArray) json_list.get("comments");
         JSONArray likeuser_list = (JSONArray) json_list.get("like_user");
+        String curUserImage = "";
+        if(json_list.getString("user_image_name")==null){
+
+        }else{
+            curUserImage= json_list.get("user_image_name").toString();
+            try {
+                URL tmp_url = null;
+                tmp_url = new URL(Constant.backendUrl+"/media/"+curUserImage);
+                System.out.println(curUserImage);
+                Bitmap bitmap = requestImg(tmp_url);
+                userImage.setImageBitmap(bitmap);
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            }
+        }
 
         titleItemView.setText(cur_Title);
         contentItemView.setText(cur_Content);

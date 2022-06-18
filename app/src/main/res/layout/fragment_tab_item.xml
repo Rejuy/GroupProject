@@ -76,17 +76,7 @@
                 android:textColor="@color/fancy_white"></Button>
         </LinearLayout>
 
-        <TextView
-            android:id="@+id/test"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:text="@string/hello_blank_fragment" />
 
-        <TextView
-            android:id="@+id/state"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:text="state" />
 
         <include layout="@layout/item_list" />
 

@@ -9,6 +9,8 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -25,6 +27,9 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
@@ -46,6 +51,13 @@ public class SelfItemActivity extends AppCompatActivity {
     private final List<Item> itemList = new LinkedList<>();
     private RecyclerView mRecyclerView;
     private PostListAdapter mAdapter;
+    private ImageView userImage;
+    private TextView followcount;
+    private TextView followedcount;
+    private TextView createtime;
+    private String creat_time = "";
+    int follower_num;
+    int follow_num;
 
     private Boolean isFollowing = false;
     private Boolean isBlocking = false;
@@ -194,7 +206,7 @@ public class SelfItemActivity extends AppCompatActivity {
                 ///////////////////////////////////////////
             }
         });
-
+        userImage = findViewById(R.id.user_image);
         HashMap<String, Object> ano_paramMap = new HashMap<>();
         ano_paramMap.put("user_id", userId);
         JSONObject ano_obj = new JSONObject(ano_paramMap);
@@ -208,6 +220,27 @@ public class SelfItemActivity extends AppCompatActivity {
 
         String userName = ano_json_list.get("user_name").toString();
         userIntroduction = ano_json_list.get("introduction").toString();
+        String tmp_image = ano_json_list.get("user_image_name").toString();
+        creat_time = ano_json_list.get("account_birth").toString();
+        JSONArray follower = (JSONArray) ano_json_list.get("dst_follower_id");
+        follower_num = follower.size();
+        JSONArray follow = (JSONArray) ano_json_list.get("src_follower_id");
+        follow_num = follow.size();
+        followcount = findViewById(R.id.follow_count);
+        followcount.setText("关注:"+follow_num);
+        followedcount = findViewById(R.id.followed_count);
+        followedcount.setText("被关注:"+follower_num);
+        createtime = findViewById(R.id.creat_time);
+        createtime.setText("用户创建于:"+creat_time);
+        try {
+            URL tmp_url = null;
+            tmp_url = new URL(Constant.backendUrl+"/media/"+tmp_image);
+            System.out.println(tmp_image);
+            Bitmap bitmap = requestImg(tmp_url);
+            userImage.setImageBitmap(bitmap);
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
         String showIntroduction = "暂无介绍";
         TextView tvIntroduction = findViewById(R.id.user_introduction);
         if (userIntroduction.length() >= 10) {
@@ -267,9 +300,9 @@ public class SelfItemActivity extends AppCompatActivity {
             if(curType == 3){
                 fakeimage_path = tmp.get("fake_image").toString();
             }
-
+            Boolean is_liked = (Boolean)tmp.get("is_liked");
             Item curItem = new Item(curItemId, curTitle, curContent, curUserName, curFollowCondition, userId,
-                    curLikesCount, curCommentsCount, curType, false,curFilename,fakeimage_path);
+                    curLikesCount, curCommentsCount, curType, is_liked,curFilename,fakeimage_path,tmp_image);
             itemList.add(curItem);
         }
 
@@ -326,5 +359,16 @@ public class SelfItemActivity extends AppCompatActivity {
         // Give the recycler view a default layout manager.
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         // Inflate the layout for this fragment
+    }
+    private Bitmap requestImg(final URL imgUrl)
+    {
+        Bitmap bitmap = null;
+        try {
+            bitmap = BitmapFactory.decodeStream(imgUrl.openStream());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return bitmap;
+
     }
 }

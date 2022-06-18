@@ -87,18 +87,12 @@ public class SearchResultActivity extends AppCompatActivity {
         String message = intent.getStringExtra("searchContent");
         userId = intent.getIntExtra("userId", 1);
         // Put that message into the text_message TextView.
-        TextView textView = findViewById(R.id.test_search);
-        textView.setText(message);
-
-        // Get spinner
-        tvType = (TextView) this.findViewById(R.id.test_type);
         typeSpinner= (Spinner) this.findViewById(R.id.spinner_type);
         typeSpinner.setAdapter(new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1, dataType));
         typeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 String str = dataType[position];
-                tvType.setText("类型："+str);
                 refresh();
             }
             @Override
@@ -106,14 +100,12 @@ public class SearchResultActivity extends AppCompatActivity {
             }
         });
 
-        tvSort = (TextView) this.findViewById(R.id.test_sort);
         sortSpinner= (Spinner) this.findViewById(R.id.spinner_sort);
         sortSpinner.setAdapter(new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1, dataSort));
         sortSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 String str = dataSort[position];
-                tvSort.setText("排序："+str);
                 refresh();
             }
             @Override
@@ -121,14 +113,12 @@ public class SearchResultActivity extends AppCompatActivity {
             }
         });
 
-        tvRange = (TextView) this.findViewById(R.id.test_range);
         rangeSpinner= (Spinner) this.findViewById(R.id.spinner_range);
         rangeSpinner.setAdapter(new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1, dataRange));
         rangeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 String str = dataRange[position];
-                tvRange.setText("范围："+str);
                 refresh();
             }
             @Override
@@ -136,14 +126,12 @@ public class SearchResultActivity extends AppCompatActivity {
             }
         });
 
-        tvPart = (TextView) this.findViewById(R.id.test_part);
         partSpinner= (Spinner) this.findViewById(R.id.spinner_part);
         partSpinner.setAdapter(new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1, dataPart));
         partSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 String str = dataPart[position];
-                tvPart.setText("部分："+str);
                 refresh();
             }
             @Override
@@ -152,7 +140,6 @@ public class SearchResultActivity extends AppCompatActivity {
         });
 
         // Test
-        tvTestOutcome = findViewById(R.id.test_outcome);
 
 
 
@@ -203,9 +190,15 @@ public class SearchResultActivity extends AppCompatActivity {
             if(curType == 3){
                 fakeimage_path = tmp.get("fake_image").toString();
             }
+            String curUserImage = "";
+            if(tmp.getString("user_image_name")==null){
 
+            }else{
+                curUserImage= tmp.get("user_image_name").toString();
+            }
+            Boolean is_liked = (Boolean)tmp.get("is_liked");
             Item curItem = new Item(curItemId, curTitle, curContent, curUserName, curFollowCondition, curUserId,
-                    curLikesCount, curCommentsCount, curType, false,curFilename,fakeimage_path);
+                    curLikesCount, curCommentsCount, curType, is_liked,curFilename,fakeimage_path,curUserImage);
             itemList.add(curItem);
         }
 
@@ -234,17 +227,7 @@ public class SearchResultActivity extends AppCompatActivity {
         String sort = sortSpinner.getSelectedItem().toString();
         String range = rangeSpinner.getSelectedItem().toString();
         String part = partSpinner.getSelectedItem().toString();
-        tvTestOutcome.setText("==========\nSearchWords: "
-                                + searchWords
-                                + "\nType: "
-                                + type
-                                + "\nSort: "
-                                + sort
-                                + "\nRange: "
-                                + range
-                                + "\nPart: "
-                                + part
-                                + "==========");
+
 
         Boolean[] types = new Boolean[]{false, false, false, false};
         if (type.equals("综合")) {
@@ -320,6 +303,7 @@ public class SearchResultActivity extends AppCompatActivity {
             String curContent = tmp.get("content").toString()+"\n";
             String curFollowCondition = ((Boolean)tmp.get("is_followed")?Item.FOLLOW:Item.HAVE_NOT_FOLLOW);
             String curTime = tmp.get("created_time").toString();
+
             curContent += curTime;
             int curLikesCount = (int)tmp.get("like_count");
             int curCommentsCount = (int)tmp.get("comment_count");
@@ -329,9 +313,15 @@ public class SearchResultActivity extends AppCompatActivity {
             if(curType == 3){
                 fakeimage_path = tmp.get("fake_image").toString();
             }
+            String curUserImage = "";
+            if(tmp.getString("user_image_name")==null){
 
+            }else{
+                curUserImage= tmp.get("user_image_name").toString();
+            }
+            Boolean is_liked = (Boolean)tmp.get("is_liked");
             Item curItem = new Item(curItemId, curTitle, curContent, curUserName, curFollowCondition, curUserId,
-                    curLikesCount, curCommentsCount, curType, false,curFilename,fakeimage_path);
+                    curLikesCount, curCommentsCount, curType, is_liked,curFilename,fakeimage_path,curUserImage);
             itemList.add(curItem);
         }
         // Create an adapter and supply the data to be displayed.

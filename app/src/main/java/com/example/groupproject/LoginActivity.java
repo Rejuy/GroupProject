@@ -80,7 +80,7 @@ public class LoginActivity extends AppCompatActivity {
 //        mWebView.loadData("<html><body><video><source src=\"http://59.66.137.34:8765/media/VID_20220516_134006_pKywsaS.mp4/\"/></video></body></html>","video/mp4","utf-8");
 //
         Log.d(LOG_TAG, "Login button clicked!");
-
+        System.out.println("com.example.groupproject");
 
         // Get user information
         String account = accountEditText.getText().toString();

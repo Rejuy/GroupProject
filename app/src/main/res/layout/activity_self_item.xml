@@ -85,13 +85,6 @@
             </LinearLayout>
 
             <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="用户创建于xxxx-xx-xx"
-                android:layout_marginLeft="10dp"
-                android:layout_weight="1"></TextView>
-
-            <TextView
                 android:id="@+id/user_introduction"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -137,6 +130,14 @@
 
 
     </LinearLayout>
+    <TextView
+        android:id="@+id/creat_time"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="用户创建于xxxx-xx-xx"
+        android:layout_marginLeft="10dp"
+        android:background="@color/white"
+        ></TextView>
 
 
 

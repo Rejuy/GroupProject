@@ -11,6 +11,7 @@ public class Item {
     private int commentsCount;
     private Boolean liked;
     private String fileName;
+    private String userImage;
     private String fakeimage;
 
     public static final String FOLLOW = "已关注";
@@ -35,7 +36,8 @@ public class Item {
                 int _type,
                 Boolean _liked,
                 String _filename,
-                String _fakeimage)
+                String _fakeimage,
+                String _userimage)
     {
         itemId = _itemId;
         title = _title;
@@ -51,6 +53,7 @@ public class Item {
         liked = _liked;
         fileName=_filename;
         fakeimage = _fakeimage;
+        userImage =_userimage;
     }
 
     public int getItemId() { return itemId; }
@@ -87,6 +90,7 @@ public class Item {
 
     public String getFileName(){return fileName;}
     public String getFake(){return  fakeimage;}
+    public String getUserImage(){return userImage;}
 
     public void setFollowCondition(String condition) { followCondition = condition; }
 

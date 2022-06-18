@@ -80,6 +80,7 @@
                 </LinearLayout>
 
                 <TextView
+                    android:id="@+id/creat_time"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="用户创建于xxxx-xx-xx"

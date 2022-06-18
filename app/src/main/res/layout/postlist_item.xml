@@ -53,10 +53,28 @@
         style="@style/post_content"/>
     <ImageView
         android:id="@+id/item_image"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:layout_height="400dp"
         android:maxHeight="100dp"
         android:maxWidth="100dp"/>
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <Button
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:id="@+id/play_button"
+            android:visibility="invisible"
+            android:background="@drawable/ic_baseline_play_arrow_24"/>
+        <Button
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:id="@+id/stop_button"
+            android:visibility="invisible"
+            android:background="@drawable/ic_baseline_stop_24"/>
+    </LinearLayout>
+
     <View
         android:layout_width="match_parent"
         android:layout_height="3dp"

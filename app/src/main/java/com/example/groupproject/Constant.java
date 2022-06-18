@@ -1,7 +1,7 @@
 package com.example.groupproject;
 
 public class Constant {
-    public static final String backendUrl = "http://183.172.145.195:8765";
+    public static final String backendUrl = "http://183.172.147.107:8765";
     public static final String getSelfItemUrl = "/get/self_item/";
     public static final String getItemUrl = "/get/item/";
     public static final String loginUrl = "/user/login/";

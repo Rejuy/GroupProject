@@ -1,13 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:layout_marginTop="5dp"
-    android:background="@color/white"
-    android:padding="5dp">
+    android:layout_height="wrap_content">
+    <LinearLayout
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginTop="5dp"
+        android:background="@color/white"
+        android:padding="5dp">
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="40dp"
@@ -37,6 +40,29 @@
         <TextView
             android:id="@+id/post_content"
             style="@style/post_content"/>
+        <ImageView
+            android:id="@+id/item_image"
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:maxHeight="100dp"
+            android:maxWidth="100dp"/>
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <Button
+                android:layout_width="25dp"
+                android:layout_height="25dp"
+                android:id="@+id/play_button"
+                android:visibility="invisible"
+                android:background="@drawable/ic_baseline_play_arrow_24"/>
+            <Button
+                android:layout_width="25dp"
+                android:layout_height="25dp"
+                android:id="@+id/stop_button"
+                android:visibility="invisible"
+                android:background="@drawable/ic_baseline_stop_24"/>
+        </LinearLayout>
 
         <View
             android:layout_width="match_parent"
@@ -109,27 +135,32 @@
             </TextView>
 
         </LinearLayout>
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/like_name"/>
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:orientation="horizontal">
-
-        <EditText
-            android:layout_width="240dp"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="50dp"
-            android:id="@+id/send_content"
-            android:hint="在此处发表你的评论吧"/>
+            android:orientation="horizontal">
 
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="50dp"
-            android:id="@+id/comment_send"
-            android:text="发布"
-            style="@style/LyqBtnStyle"/>
+            <EditText
+                android:layout_width="240dp"
+                android:layout_height="50dp"
+                android:id="@+id/send_content"
+                android:hint="在此处发表你的评论吧"/>
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="50dp"
+                android:id="@+id/comment_send"
+                android:text="发布"
+                style="@style/LyqBtnStyle"/>
+        </LinearLayout>
+
+        <include layout="@layout/comment_list"/>
+
     </LinearLayout>
-
-    <include layout="@layout/comment_list"/>
-
-</LinearLayout>
+</ScrollView>
 

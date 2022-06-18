@@ -27,17 +27,16 @@ public class CaoGaoList extends AppCompatActivity {
     private final ArrayList<item_unfinished> itemList = new ArrayList<>();
     private RecyclerView mRecyclerView;
     private CaoGaoAdapter mAdapter;
-    String total_msg;
+    String total_msg = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_cao_gao_list);
         readSDcard();
-        if(total_msg!="" && total_msg!="[[]]"){
+        if(!total_msg.equals("") && !total_msg.equals("[[]]")){
             HashMap mapType = JSON.parseObject(total_msg,HashMap.class);
 //            String tmp_str=mapType.get("save_list").toString();
-            System.out.println(mapType.get("save_list").toString());
             JSONArray tmp_list = (JSONArray) mapType.get("save_list");
             int size = tmp_list.size();
             for(int i =0;i<size;i++){
@@ -77,6 +76,7 @@ public class CaoGaoList extends AppCompatActivity {
                 while ((str = bReader.readLine()) != null) {
                     stringBuffer.append(str);
                 }
+                total_msg = "";
                 total_msg =  stringBuffer.toString();
             }
         } catch (Exception e) {

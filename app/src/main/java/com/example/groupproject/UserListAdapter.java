@@ -7,6 +7,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,6 +22,9 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import org.w3c.dom.Text;
 
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -138,6 +143,14 @@ public class UserListAdapter extends
 //        String mCurrentContent = mContentList.get(position);
         // Add the data to the view holder.
         holder.userNameItemView.setText(curUser.getUserName());
+        try {
+            URL tmp_url = null;
+            tmp_url = new URL(Constant.backendUrl+"/media/"+curUser.getImageUrl());
+            Bitmap bitmap = requestImg(tmp_url);
+            holder.userImage.setImageBitmap(bitmap);
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
 
 
 
@@ -168,5 +181,16 @@ public class UserListAdapter extends
     @Override
     public int getItemCount() {
         return userList.size();
+    }
+    private Bitmap requestImg(final URL imgUrl)
+    {
+        Bitmap bitmap = null;
+        try {
+            bitmap = BitmapFactory.decodeStream(imgUrl.openStream());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return bitmap;
+
     }
 }

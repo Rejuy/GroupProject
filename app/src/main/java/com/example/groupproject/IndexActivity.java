@@ -1,9 +1,14 @@
 package com.example.groupproject;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.viewpager.widget.ViewPager;
 
+import android.Manifest;
+import android.app.Activity;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.widget.TextView;
 
@@ -16,7 +21,7 @@ public class IndexActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_index);
-
+        GetPermission();
         Intent intent = getIntent();
 //        user_id = intent.getIntExtra("userId", -1);
         user_id = Constant.userId;
@@ -54,5 +59,41 @@ public class IndexActivity extends AppCompatActivity {
                     public void onTabReselected(TabLayout.Tab tab) {
                     }
                 });
+    }
+    private void GetPermission() {
+        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.RECORD_AUDIO)!=
+                PackageManager.PERMISSION_GRANTED||
+                ActivityCompat.checkSelfPermission(this, android.Manifest.permission.WRITE_EXTERNAL_STORAGE)!=
+                        PackageManager.PERMISSION_GRANTED||
+                ActivityCompat.checkSelfPermission(this, android.Manifest.permission.READ_EXTERNAL_STORAGE)!=
+                        PackageManager.PERMISSION_GRANTED||
+                ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) !=
+                        PackageManager.PERMISSION_GRANTED ||
+                ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) !=
+                        PackageManager.PERMISSION_GRANTED ||
+                ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA) !=
+                        PackageManager.PERMISSION_GRANTED
+        )
+        {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{android.Manifest.permission.RECORD_AUDIO,
+                            android.Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                            Manifest.permission.READ_EXTERNAL_STORAGE,
+                            Manifest.permission.ACCESS_FINE_LOCATION,
+                            Manifest.permission.ACCESS_COARSE_LOCATION,
+                            Manifest.permission.CAMERA}, 0);
+        }
+//        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+//            ActivityCompat.requestPermissions(this, new
+//                    String[]{Manifest.permission.ACCESS_FINE_LOCATION }, 1);
+//            ActivityCompat.requestPermissions(this, new
+//                    String[]{Manifest.permission.ACCESS_COARSE_LOCATION }, 1);
+//        }
+//        if (ContextCompat.checkSelfPermission(this,
+//                Manifest.permission.CAMERA) != PackageManager
+//                .PERMISSION_GRANTED) {
+//            ActivityCompat.requestPermissions(this, new
+//                    String[]{Manifest.permission.CAMERA }, 1);
+//        }
     }
 }
